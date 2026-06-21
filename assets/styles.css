@@ -253,9 +253,9 @@
   .toast .undo{color:var(--oro-soft);font-weight:700;cursor:pointer;text-decoration:underline}
 
   footer{text-align:center;color:var(--muted-2);font-size:.72rem;letter-spacing:.04em;padding-top:6px}
-  .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:560px;margin:0 auto;padding:10px 14px calc(6px + env(safe-area-inset-bottom));pointer-events:none}
-  .dock-bar{height:66px;border-radius:32px;background:rgba(27,83,69,.82);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(244,239,226,.18);box-shadow:0 12px 34px -14px rgba(0,0,0,.6);pointer-events:auto;display:flex;align-items:stretch;justify-content:space-around;padding:0 6px}
-  .dock-btn{flex:1;appearance:none;border:none;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'Hanken Grotesk';font-weight:600;font-size:.62rem;letter-spacing:.01em;white-space:nowrap;border-radius:22px;transition:color .15s,transform .1s}
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:560px;margin:0 auto;pointer-events:none}
+  .dock-bar{pointer-events:auto;display:flex;align-items:stretch;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(24,74,62,.9);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);border-top:1px solid rgba(244,239,226,.16);border-radius:22px 22px 0 0;box-shadow:0 -10px 30px -16px rgba(0,0,0,.55)}
+  .dock-btn{flex:1;appearance:none;border:none;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0;cursor:pointer;font-family:'Hanken Grotesk';font-weight:600;font-size:.62rem;letter-spacing:.01em;white-space:nowrap;border-radius:16px;transition:color .15s,transform .1s}
   .dock-btn svg{width:23px;height:23px}
   .dock-btn.on{color:var(--oro-soft)}
   .dock-btn:active{transform:scale(.92)}
