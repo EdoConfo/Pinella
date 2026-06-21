@@ -68,17 +68,22 @@
     show("viewScorer",v==="casual-play"||v==="match-play");
     show("viewTourneys",v==="tourneys");
     show("viewTourney",v==="tourney");
-    show("tabs",v==="casual-setup"||v==="casual-play"||v==="tourneys");
     show("matchNav",v==="match-play");
     show("casualBar",v==="casual-play");
     show("btnFinish",v==="match-play");
     show("footNote",v==="casual-setup"||v==="casual-play");
-    Array.prototype.forEach.call($("tabs").children,function(b){b.classList.toggle("on",(b.dataset.tab==="quick"&&(v==="casual-setup"||v==="casual-play"))||(b.dataset.tab==="tourneys"&&v==="tourneys"));});
+    setDockActive(v);
     if(v==="casual-setup")renderSetup();
     if(v==="casual-play"||v==="match-play")renderScorer();
     if(v==="tourneys")renderTourneys();
     if(v==="tourney")renderTourney();
     window.scrollTo(0,0);
+  }
+  function setDockActive(v){
+    var partite=(v==="casual-setup"||v==="casual-play"||v==="match-play");
+    var tornei=(v==="tourneys"||v==="tourney");
+    $("dockPartite").classList.toggle("on",partite);
+    $("dockTornei").classList.toggle("on",tornei);
   }
   function goPartita(){ if(state.casual.active){setCasualScorer();nav("casual-play");} else nav("casual-setup"); }
 
@@ -97,7 +102,7 @@
   function renderSetup(){
     $("setupTarget").value=state.casual.target||state.settings.target;
     var grid=$("setupGrid"),entries=allEntries();
-    if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun partecipante salvato. Aggiungili dalle Impostazioni (icona ingranaggio) oppure usa "+ Aggiungi ospite".</div>'; }
+    if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Aggiungili da <b>Giocatori</b> (nel dock in basso) oppure usa "+ Aggiungi ospite".</div>'; }
     else{
       grid.innerHTML=entries.map(function(p){
         var a=assign[p.id]||"";
@@ -255,11 +260,16 @@
 
   // ===== roster + player editor =====
   function renderRoster(){
-    var list=$("rosterList");
-    if(state.players.length===0){list.innerHTML='<div class="ref" style="text-align:center">Nessun partecipante. Aggiungine per usarli nelle partite e nei tornei.</div>';return;}
-    list.innerHTML=state.players.map(function(p){return '<div class="person" data-id="'+p.id+'">'+avatarHTML(p,34)+'<div class="pn">'+esc(p.name)+'</div><span class="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>';}).join("");
-    list.querySelectorAll(".person").forEach(function(el){el.addEventListener("click",function(){openPlayer(el.dataset.id);});});
+    var html=state.players.length===0
+      ? '<div class="ref" style="text-align:center">Nessun giocatore. Aggiungine per usarli nelle partite e nei tornei.</div>'
+      : state.players.map(function(p){return '<div class="person" data-id="'+p.id+'">'+avatarHTML(p,34)+'<div class="pn">'+esc(p.name)+'</div><span class="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></div>';}).join("");
+    ["rosterList","rosterList2"].forEach(function(id){
+      var list=$(id);if(!list)return;
+      list.innerHTML=html;
+      list.querySelectorAll(".person").forEach(function(el){el.addEventListener("click",function(){openPlayer(el.dataset.id);});});
+    });
   }
+  function openPlayers(){renderRoster();openOv("playersSheet","scrim5");}
   var editingPlayerId=null,draftAvatar={symbol:null,color:null,photo:null};
   function renderAvatarPicker(){
     var fake={id:editingPlayerId||"new",name:$("pName").value||"?",avatar:{symbol:draftAvatar.symbol,color:draftAvatar.color,photo:draftAvatar.photo}};
@@ -277,7 +287,7 @@
   function openPlayer(id){
     editingPlayerId=id||null;
     var p=id?getPlayer(id):null;
-    $("pTitle").textContent=id?"Modifica partecipante":"Nuovo partecipante";
+    $("pTitle").textContent=id?"Modifica giocatore":"Nuovo giocatore";
     $("pName").value=p?p.name:"";
     draftAvatar=p&&p.avatar?{symbol:p.avatar.symbol||null,color:p.avatar.color||null,photo:p.avatar.photo||null}:{symbol:null,color:null,photo:null};
     $("pDelete").style.display=id?"":"none";
@@ -306,7 +316,7 @@
   }
 
   // ===== settings =====
-  function openSettings(){renderRoster();var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
+  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
   function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
   // ===== overlays / toast =====
@@ -316,8 +326,13 @@
   function toast(msg,undo){var t=$("toast");$("toastMsg").textContent=msg;var old=t.querySelector(".undo");if(old)old.remove();if(undo){var u=document.createElement("span");u.className="undo";u.textContent="Annulla";u.addEventListener("click",function(){undo();t.classList.remove("show");});t.appendChild(u);}t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show");},undo?4500:2200);}
 
   // ===== events =====
-  Array.prototype.forEach.call($("tabs").children,function(b){b.addEventListener("click",function(){if(b.dataset.tab==="quick")goPartita();else nav("tourneys");});});
-  $("btnSettings").addEventListener("click",openSettings);
+  $("dockPartite").addEventListener("click",goPartita);
+  $("dockTornei").addEventListener("click",function(){nav("tourneys");});
+  $("dockGiocatori").addEventListener("click",openPlayers);
+  $("dockImpostazioni").addEventListener("click",openSettings);
+  $("playersClose").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
+  $("scrim5").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
+  $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
   $("startCasual").addEventListener("click",startCasual);
   $("newCasual").addEventListener("click",newCasual);
   $("addGuest").addEventListener("click",function(){var n=prompt("Nome dell'ospite:");if(n===null)return;n=n.trim();if(!n)return;guests.push({id:"g"+uid(),name:n.slice(0,22)});renderSetup();});
@@ -334,7 +349,6 @@
   $("setClose").addEventListener("click",function(){closeOv("setSheet","scrim2");});
   $("scrim2").addEventListener("click",function(){closeOv("setSheet","scrim2");});
   $("saveSettings").addEventListener("click",saveSettings);
-  $("openAddPerson").addEventListener("click",function(){openPlayer(null);});
   $("pClose").addEventListener("click",function(){closeOv("pSheet","scrim4");});
   $("scrim4").addEventListener("click",function(){closeOv("pSheet","scrim4");});
   $("pSave").addEventListener("click",savePlayer);
@@ -350,7 +364,7 @@
   $("tAddPerson").addEventListener("click",function(){var n=$("tNewPerson").value.trim();if(!n)return;state.players.push({id:uid(),name:n.slice(0,22),avatar:null});persist();$("tNewPerson").value="";renderCouples();toast(n+" aggiunto");});
   $("tNewPerson").addEventListener("keydown",function(e){if(e.key==="Enter"){$("tAddPerson").click();}});
   buildPickers();
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4"].forEach(function(s){$(s).classList.remove("open");});}});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5"].forEach(function(s){$(s).classList.remove("open");});}});
 
   goPartita();
 })();
