@@ -8,7 +8,7 @@
   var SYMBOLS=["\u2660","\u2665","\u2666","\u2663","\uD83E\uDD8A","\uD83D\uDC2F","\uD83E\uDD81","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDD25","\u2B50","\uD83D\uDC51","\uD83C\uDFAF","\uD83C\uDF40","\uD83C\uDFB2","\uD83D\uDE80","\uD83C\uDF55"];
   var COLORS=["#C0463B","#15463B","#A9842F","#3B6FC0","#7A3BC0","#C03B8F","#2E7D5B","#1C1B19"];
 
-  var DEF={players:[],settings:{target:2005,semipulito:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[]};
+  var DEF={players:[],settings:{target:2005,semipulito:false,showTourneys:true,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[]};
 
   var state=loadRaw();
   if(!state){
@@ -316,8 +316,9 @@
   }
 
   // ===== settings =====
-  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
-  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
+  function applyTourneysVisibility(){var show=state.settings.showTourneys!==false;$("dockTornei").hidden=!show;if(!show&&(view==="tourneys"||view==="tourney"))nav("casual-setup");}
+  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
+  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
   // ===== overlays / toast =====
   function openOv(sheet,scrim){$(scrim).classList.add("open");requestAnimationFrame(function(){$(sheet).classList.add("open");});}
@@ -364,6 +365,7 @@
   $("tAddPerson").addEventListener("click",function(){var n=$("tNewPerson").value.trim();if(!n)return;state.players.push({id:uid(),name:n.slice(0,22),avatar:null});persist();$("tNewPerson").value="";renderCouples();toast(n+" aggiunto");});
   $("tNewPerson").addEventListener("keydown",function(e){if(e.key==="Enter"){$("tAddPerson").click();}});
   buildPickers();
+  applyTourneysVisibility();
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5"].forEach(function(s){$(s).classList.remove("open");});}});
 
   goPartita();
