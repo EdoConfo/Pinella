@@ -8,7 +8,7 @@
   var SYMBOLS=["\u2660","\u2665","\u2666","\u2663","\uD83E\uDD8A","\uD83D\uDC2F","\uD83E\uDD81","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDD25","\u2B50","\uD83D\uDC51","\uD83C\uDFAF","\uD83C\uDF40","\uD83C\uDFB2","\uD83D\uDE80","\uD83C\uDF55"];
   var COLORS=["#C0463B","#15463B","#A9842F","#3B6FC0","#7A3BC0","#C03B8F","#2E7D5B","#1C1B19"];
 
-  var DEF={players:[],settings:{target:2005,semipulito:false,showTourneys:true,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[]};
+  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[]};
 
   var state=loadRaw();
   if(!state){

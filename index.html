@@ -128,14 +128,15 @@
   <div class="sheet-head"><h3>Impostazioni</h3><button class="close-x" id="setClose">&times;</button></div>
   <div class="sheet-body">
     <div class="set-group">
-      <h2 class="sec" style="color:rgba(28,27,25,.5)">Regole</h2>
+      <h2 class="sec" style="color:rgba(28,27,25,.5)">Regole di gioco</h2>
       <div class="set-row"><label>Punteggio predefinito</label><input class="txtbox" id="setTarget" type="number" inputmode="numeric" min="100" step="5"><span class="ref" style="padding:2px 2px 0">Si può cambiare a inizio di ogni partita.</span></div>
       <div class="toggle-row"><div class="t-txt">Burraco semipulito<small>Bonus intermedio da 150 punti</small></div><label class="switch"><input type="checkbox" id="setSemi"><span class="sl"></span></label></div>
-      <div class="toggle-row"><div class="t-txt">Mostra sezione Tornei<small>Nasconde la voce Tornei dal dock</small></div><label class="switch"><input type="checkbox" id="setShowTourneys"><span class="sl"></span></label></div>
       <details class="adv"><summary>Valori bonus (varianti regionali)</summary>
         <div class="val-grid"><span>Burraco pulito</span><input type="number" id="vPulito" inputmode="numeric"><span>Burraco semipulito</span><input type="number" id="vSemi" inputmode="numeric"><span>Burraco sporco</span><input type="number" id="vSporco" inputmode="numeric"><span>Chiusura</span><input type="number" id="vChius" inputmode="numeric"><span>Pozzetto non preso</span><input type="number" id="vPozz" inputmode="numeric"></div>
       </details>
       <div class="ref"><b>Valori carte</b> &mdash; Jolly 30 &middot; Pinella 20 &middot; Asso 15 &middot; dall'8 al K = 10 &middot; dal 3 al 7 = 5.</div>
+      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Visualizzazione</h2>
+      <div class="toggle-row"><div class="t-txt">Mostra sezione Tornei<small>Attiva la voce Tornei nel dock</small></div><label class="switch"><input type="checkbox" id="setShowTourneys"><span class="sl"></span></label></div>
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
