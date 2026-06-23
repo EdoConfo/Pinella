@@ -92,10 +92,10 @@
   function goPartita(){ if(state.casual.active){setCasualScorer();nav("casual-play");} else nav("casual-setup"); }
 
   // ===== casual setup =====
-  var assign={},guests=[];
+  var assign={};
   function countTeam(t){var n=0;for(var k in assign)if(assign[k]===t)n++;return n;}
-  function allEntries(){return state.players.concat(guests.map(function(g){return {id:g.id,name:g.name,avatar:null,_guest:true};}));}
-  function membersOf(t){var res=[];allEntries().forEach(function(p){if(assign[p.id]===t)res.push({id:p._guest?undefined:p.id,name:p.name});});return res;}
+  function allEntries(){return state.players;}
+  function membersOf(t){var res=[];allEntries().forEach(function(p){if(assign[p.id]===t)res.push({id:p.id,name:p.name});});return res;}
   function cycle(id){
     var cur=assign[id]||null;
     if(cur===null){ if(countTeam("A")<2)assign[id]="A"; else if(countTeam("B")<2)assign[id]="B"; }
@@ -106,7 +106,7 @@
   function renderSetup(){
     $("setupTarget").value=state.casual.target||state.settings.target;
     var grid=$("setupGrid"),entries=allEntries();
-    if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Aggiungili da <b>Giocatori</b> (nel dock in basso) oppure usa "+ Aggiungi ospite".</div>'; }
+    if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Tocca <b>+ Aggiungi giocatore</b> per crearne uno.</div>'; }
     else{
       grid.innerHTML=entries.map(function(p){
         var a=assign[p.id]||"";
@@ -135,7 +135,7 @@
   function newCasual(){
     if(state.casual.rounds.length && !confirm("Iniziare una nuova partita? Quella attuale verrà salvata nello storico."))return;
     archiveCasual();
-    state.casual.active=false;assign={};guests=[];persist();nav("casual-setup");
+    state.casual.active=false;assign={};persist();nav("casual-setup");
   }
 
   // ===== scorer render =====
@@ -436,7 +436,7 @@
   $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
   $("startCasual").addEventListener("click",startCasual);
   $("newCasual").addEventListener("click",newCasual);
-  $("addGuest").addEventListener("click",function(){if(state.players.length===0){openPlayers();return;}var n=prompt("Nome dell'ospite:");if(n===null)return;n=n.trim();if(!n)return;guests.push({id:"g"+uid(),name:n.slice(0,22)});renderSetup();});
+  $("addGuest").addEventListener("click",function(){openPlayers();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
   $("btnFinish").addEventListener("click",finishMatch);
