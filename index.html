@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=16">
+<link rel="stylesheet" href="assets/styles.css?v=17">
 </head>
 <body>
 <div class="wrap">
@@ -74,8 +74,10 @@
   <!-- TOURNAMENT DETAIL -->
   <section id="viewTourney" hidden>
     <div class="navbar" style="margin-bottom:4px"><button class="back" id="tourneyBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Tornei</button><div class="ctx"><small>Torneo</small><span id="tourneyTitle"></span></div></div>
+    <div id="tourneyWinner"></div>
     <h2 class="sec">Classifica</h2><div id="standingsArea"></div>
     <h2 class="sec" style="margin-top:20px">Calendario</h2><div id="calendarArea"></div>
+    <div class="tourney-actions"><button id="tRename">Rinomina</button><button id="tDelete">Elimina torneo</button></div>
   </section>
 
   <!-- HISTORY + STATS -->
@@ -201,6 +203,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=16"></script>
+<script src="assets/js/main.js?v=17"></script>
 </body>
 </html>

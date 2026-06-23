@@ -115,6 +115,12 @@
   /* tournaments */
   .tcard{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);border:1px solid var(--feltro-line);background:linear-gradient(180deg, rgba(244,239,226,.05), rgba(0,0,0,.1));cursor:pointer;transition:border-color .15s;margin-bottom:10px}
   .tcard:hover{border-color:rgba(203,161,76,.4)}
+  .tcard.done{border-color:rgba(203,161,76,.4)}
+  .tcard.done .rank{background:linear-gradient(100deg,var(--oro-deep),var(--oro));color:#241a06;border-radius:50%;width:34px;height:34px;line-height:34px;font-size:1rem}
+  .tourney-actions{display:flex;gap:10px;margin-top:24px}
+  .tourney-actions button{flex:1;appearance:none;border:1px solid var(--feltro-line);background:rgba(244,239,226,.06);color:var(--txt);border-radius:12px;padding:13px;font-family:'Hanken Grotesk';font-weight:700;font-size:.9rem;cursor:pointer}
+  .tourney-actions #tDelete{color:#E89B92;border-color:rgba(192,70,59,.35)}
+  .tourney-actions button:active{background:rgba(244,239,226,.12)}
   .tcard .rank{font-family:'Fraunces',serif;font-size:1.4rem;color:var(--oro-soft);flex:none;width:30px;text-align:center}
   .tcard .info{flex:1;min-width:0}
   .tcard .info b{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

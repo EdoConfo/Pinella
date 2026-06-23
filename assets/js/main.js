@@ -211,10 +211,11 @@
   // ===== tournaments =====
   function getTourney(id){return state.tournaments.find(function(t){return t.id===id;});}
   function getMatch(tId,mId){var t=getTourney(tId);if(!t)return null;return t.matches.find(function(m){return m.id===mId;});}
+  function tourneyComplete(t){return !!t&&t.matches.length>0&&t.matches.every(function(m){return m.finished;});}
   function renderTourneys(){
     var area=$("tListArea");
     if(state.tournaments.length===0){area.innerHTML='<div class="empty"><span class="big">Nessun torneo</span>Crea un torneo a coppie: ogni coppia incontra tutte le altre, classifica per vittorie e differenza punti.</div>';return;}
-    area.innerHTML=state.tournaments.map(function(t){var played=t.matches.filter(function(m){return m.finished;}).length;var st=standings(t);var leader=played>0&&st.length?st[0].label:"—";return '<div class="tcard" data-id="'+t.id+'"><div class="rank">'+t.couples.length+'</div><div class="info"><b>'+esc(t.name)+'</b><span>'+t.couples.length+' coppie · a '+fmt(t.target)+' · '+played+'/'+t.matches.length+' partite'+(played>0?' · 1° '+esc(leader):'')+'</span></div><div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>';}).join("");
+    area.innerHTML=state.tournaments.map(function(t){var played=t.matches.filter(function(m){return m.finished;}).length;var st=standings(t);var leader=played>0&&st.length?st[0].label:"—";var complete=tourneyComplete(t);var sub=t.couples.length+' coppie · a '+fmt(t.target)+' · '+(complete?'Concluso · 🏆 '+esc(leader):played+'/'+t.matches.length+' partite'+(played>0?' · 1° '+esc(leader):''));return '<div class="tcard'+(complete?' done':'')+'" data-id="'+t.id+'"><div class="rank">'+t.couples.length+'</div><div class="info"><b>'+esc(t.name)+'</b><span>'+sub+'</span></div><div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div></div>';}).join("");
     area.querySelectorAll(".tcard").forEach(function(c){c.addEventListener("click",function(){openTourney(c.dataset.id);});});
   }
   function openTourney(id){currentTourneyId=id;nav("tourney");}
@@ -222,6 +223,8 @@
     var t=getTourney(currentTourneyId);if(!t){nav("tourneys");return;}
     $("tourneyTitle").textContent=t.name;
     var st=standings(t),anyPlayed=t.matches.some(function(m){return m.finished;});
+    var complete=tourneyComplete(t);
+    $("tourneyWinner").innerHTML=complete&&st.length?'<div class="winner show" style="margin-bottom:14px"><div class="cup">&#127942;</div><div class="txt"><b>'+esc(st[0].label)+'</b><span>vince il torneo · '+st[0].w+' vittorie</span></div></div>':'';
     $("standingsArea").innerHTML='<table><thead><tr><th>#</th><th class="lcol">Coppia</th><th>V</th><th>Diff</th><th>PF</th></tr></thead><tbody>'+st.map(function(row,i){var lead=anyPlayed&&i===0?' class="cell-lead"':'';return '<tr><td'+lead+'>'+(i+1)+'</td><td class="lcol"'+lead+'>'+esc(row.label)+'</td><td>'+row.w+'</td><td>'+(row.diff>0?"+":"")+fmt(row.diff)+'</td><td>'+fmt(row.pf)+'</td></tr>';}).join("")+'</tbody></table>';
     var turni={};t.matches.forEach(function(m){(turni[m.turno]=turni[m.turno]||[]).push(m);});
     var html="";Object.keys(turni).sort(function(x,y){return x-y;}).forEach(function(tn){
@@ -245,7 +248,9 @@
     $("matchTitle").textContent=scorer.names[0]+" vs "+scorer.names[1];
     nav("match-play");
   }
-  function finishMatch(){var m=getMatch(scorer.tId,scorer.mId);if(!m)return;m.finished=!m.finished;persist();toast(m.finished?"Partita registrata in classifica":"Partita riaperta");openTourney(scorer.tId);}
+  function finishMatch(){var t=getTourney(scorer.tId),m=getMatch(scorer.tId,scorer.mId);if(!m)return;var wasComplete=tourneyComplete(t);m.finished=!m.finished;persist();toast(m.finished?"Partita registrata in classifica":"Partita riaperta");if(!wasComplete&&tourneyComplete(t))celebrate();openTourney(scorer.tId);}
+  function renameTourney(){var t=getTourney(currentTourneyId);if(!t)return;var n=prompt("Nome del torneo:",t.name);if(n===null)return;n=n.trim();if(!n)return;t.name=n.slice(0,40);persist();renderTourney();}
+  function deleteTourney(){var t=getTourney(currentTourneyId);if(!t)return;if(!confirm("Eliminare il torneo \""+t.name+"\"? L'operazione non si può annullare."))return;state.tournaments=state.tournaments.filter(function(x){return x.id!==t.id;});persist();nav("tourneys");toast("Torneo eliminato");}
   function roundRobin(n){var ids=[];for(var i=0;i<n;i++)ids.push(i);if(n%2===1)ids.push(-1);var m=ids.length,arr=ids.slice(),turni=[],byes={};for(var r=0;r<m-1;r++){var pairs=[],bye=null;for(var k=0;k<m/2;k++){var x=arr[k],y=arr[m-1-k];if(x===-1){bye=y;}else if(y===-1){bye=x;}else pairs.push([x,y]);}turni.push(pairs);if(bye!=null)byes[r+1]=bye;var fixed=arr[0],rest=arr.slice(1);rest.unshift(rest.pop());arr=[fixed].concat(rest);}return {turni:turni,byes:byes};}
 
   // ===== new tournament =====
@@ -507,6 +512,8 @@
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
   $("tourneyBack").addEventListener("click",function(){nav("tourneys");});
   $("gameBack").addEventListener("click",function(){nav("history");});
+  $("tRename").addEventListener("click",renameTourney);
+  $("tDelete").addEventListener("click",deleteTourney);
   $("btnNewTourney").addEventListener("click",openNewTourney);
   $("sheetClose").addEventListener("click",function(){closeOv("sheet","scrim");});
   $("scrim").addEventListener("click",function(){closeOv("sheet","scrim");});
