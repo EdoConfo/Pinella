@@ -73,7 +73,7 @@
     show("viewGameDetail",v==="game-detail");
     show("matchNav",v==="match-play");
     show("casualBar",v==="casual-play");
-    show("btnFinish",v==="match-play");
+    show("btnFinish",v==="match-play"||v==="casual-play");
     show("footNote",v==="casual-setup"||v==="casual-play");
     setDockActive(v);
     if(v==="casual-setup")renderSetup();
@@ -139,6 +139,13 @@
     archiveCasual();
     state.casual.active=false;assign={};persist();nav("casual-setup");
   }
+  function terminateCasual(){
+    if(!state.casual.rounds.length)return;
+    if(!confirm("Terminare la partita? Verrà salvata nello storico."))return;
+    archiveCasual();
+    state.casual.active=false;assign={};persist();nav("casual-setup");
+    toast("Partita salvata nello storico");
+  }
 
   // ===== scorer render =====
   function renderScorer(){
@@ -156,7 +163,8 @@
     var won=(a>=tg||b>=tg)&&a!==b,w=$("winner");
     if(won){var wi=a>b?0:1;$("winnerName").textContent=scorer.names[wi]+" vince!";$("winnerSub").textContent="con "+fmt(Math.max(a,b))+" punti · margine di "+fmt(diff);w.classList.add("show");if(!scorer._won)celebrate();}else w.classList.remove("show");
     scorer._won=won;
-    if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
+    if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").hidden=false;$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
+    else if(scorer.mode==="casual"){$("btnFinish").hidden=scorer.rounds.length===0;$("btnFinish").textContent="Termina partita";}
     if(scorer.mode==="casual")$("casualTitle").textContent=scorer.names[0]+" vs "+scorer.names[1];
     renderHistory();persist();
   }
@@ -507,7 +515,7 @@
   $("addGuest").addEventListener("click",function(){openPlayers();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
-  $("btnFinish").addEventListener("click",finishMatch);
+  $("btnFinish").addEventListener("click",function(){if(scorer.mode==="match")finishMatch();else terminateCasual();});
   $("winShare").addEventListener("click",shareResult);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
   $("tourneyBack").addEventListener("click",function(){nav("tourneys");});
