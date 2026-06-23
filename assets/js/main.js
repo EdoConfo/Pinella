@@ -152,7 +152,8 @@
     $("metaA").textContent=a>b&&a>0?"+"+fmt(diff):(tg-a>0?fmt(tg-a)+" al traguardo":"");
     $("metaB").textContent=b>a&&b>0?"+"+fmt(diff):(tg-b>0?fmt(tg-b)+" al traguardo":"");
     var won=(a>=tg||b>=tg)&&a!==b,w=$("winner");
-    if(won){var wi=a>b?0:1;$("winnerName").textContent=scorer.names[wi]+" vince!";$("winnerSub").textContent="con "+fmt(Math.max(a,b))+" punti · margine di "+fmt(diff);w.classList.add("show");}else w.classList.remove("show");
+    if(won){var wi=a>b?0:1;$("winnerName").textContent=scorer.names[wi]+" vince!";$("winnerSub").textContent="con "+fmt(Math.max(a,b))+" punti · margine di "+fmt(diff);w.classList.add("show");if(!scorer._won)celebrate();}else w.classList.remove("show");
+    scorer._won=won;
     if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
     if(scorer.mode==="casual")$("casualTitle").textContent=scorer.names[0]+" vs "+scorer.names[1];
     renderHistory();persist();
@@ -404,6 +405,28 @@
   var toastTimer=null;
   function toast(msg,undo){var t=$("toast");$("toastMsg").textContent=msg;var old=t.querySelector(".undo");if(old)old.remove();if(undo){var u=document.createElement("span");u.className="undo";u.textContent="Annulla";u.addEventListener("click",function(){undo();t.classList.remove("show");});t.appendChild(u);}t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show");},undo?4500:2200);}
 
+  // ===== celebration + share =====
+  function confetti(){
+    var c=document.createElement("canvas");c.className="confetti-c";var ctx=c.getContext("2d");
+    c.width=window.innerWidth;c.height=window.innerHeight;document.body.appendChild(c);
+    var cols=["#CBA14C","#E6CD86","#C0463B","#2E7D5B","#3B6FC0","#F4EFE2"],P=[];
+    for(var i=0;i<130;i++)P.push({x:Math.random()*c.width,y:-20-Math.random()*c.height*0.4,r:4+Math.random()*6,col:cols[(Math.random()*cols.length)|0],vy:2.5+Math.random()*4,vx:-2.5+Math.random()*5,rot:Math.random()*6.28,vr:-0.25+Math.random()*0.5});
+    var t0=Date.now();
+    (function frame(){var el=Date.now()-t0;ctx.clearRect(0,0,c.width,c.height);for(var i=0;i<P.length;i++){var p=P[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=el<2200?1:Math.max(0,1-(el-2200)/600);ctx.fillStyle=p.col;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.6);ctx.restore();}if(el<2800)requestAnimationFrame(frame);else c.remove();})();
+  }
+  function celebrate(){
+    if(navigator.vibrate){try{navigator.vibrate([40,40,90]);}catch(e){}}
+    if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    confetti();
+  }
+  function shareResult(){
+    var t=totals(scorer.rounds),a=t[0],b=t[1];if(a===b){toast("Nessun vincitore ancora");return;}
+    var wi=a>b?0:1,li=wi?0:1,txt="🏆 "+scorer.names[wi]+" batte "+scorer.names[li]+" "+fmt(Math.max(a,b))+"–"+fmt(Math.min(a,b))+" · Pinella";
+    if(navigator.share){navigator.share({text:txt}).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast("Risultato copiato");},function(){toast("Copia non riuscita");});}
+    else toast("Condivisione non supportata");
+  }
+
   // ===== events =====
   $("dockPartite").addEventListener("click",goPartita);
   $("dockTornei").addEventListener("click",function(){nav("tourneys");});
@@ -419,6 +442,7 @@
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
   $("btnFinish").addEventListener("click",finishMatch);
+  $("winShare").addEventListener("click",shareResult);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
   $("tourneyBack").addEventListener("click",function(){nav("tourneys");});
   $("btnNewTourney").addEventListener("click",openNewTourney);
