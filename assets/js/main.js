@@ -336,7 +336,7 @@
   $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
   $("startCasual").addEventListener("click",startCasual);
   $("newCasual").addEventListener("click",newCasual);
-  $("addGuest").addEventListener("click",function(){var n=prompt("Nome dell'ospite:");if(n===null)return;n=n.trim();if(!n)return;guests.push({id:"g"+uid(),name:n.slice(0,22)});renderSetup();});
+  $("addGuest").addEventListener("click",function(){if(state.players.length===0){openPlayers();return;}var n=prompt("Nome dell'ospite:");if(n===null)return;n=n.trim();if(!n)return;guests.push({id:"g"+uid(),name:n.slice(0,22)});renderSetup();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
   $("btnFinish").addEventListener("click",finishMatch);
