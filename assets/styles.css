@@ -259,5 +259,15 @@
   .dock-btn svg{width:23px;height:23px}
   .dock-btn.on{color:var(--oro-soft)}
   .dock-btn:active{transform:scale(.92)}
+  /* orientation lock (phones in landscape) */
+  .rotate-lock{display:none}
+  .rotate-lock .suit{font-family:'Fraunces',serif;font-size:1.7rem;color:var(--oro-soft);line-height:1}
+  .rotate-lock svg{width:56px;height:56px;color:var(--txt);margin:6px 0}
+  .rotate-lock b{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;color:var(--txt)}
+  .rotate-lock span{font-size:.92rem;color:var(--muted)}
+  @media (orientation:landscape) and (max-height:500px){
+    .rotate-lock{display:flex;position:fixed;inset:0;z-index:9999;background:var(--feltro);flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:24px}
+    .wrap,.dock{display:none!important}
+  }
   @media (max-width:380px){.side .total{font-size:2.5rem}.teams2{gap:8px}.pane{padding:11px 9px}.pchip{width:56px}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
