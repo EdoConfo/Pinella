@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=8">
+<link rel="stylesheet" href="assets/styles.css?v=9">
 </head>
 <body>
 <div class="wrap">
@@ -137,6 +137,10 @@
       <div class="ref"><b>Valori carte</b> &mdash; Jolly 30 &middot; Pinella 20 &middot; Asso 15 &middot; dall'8 al K = 10 &middot; dal 3 al 7 = 5.</div>
       <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Visualizzazione</h2>
       <div class="toggle-row"><div class="t-txt">Mostra sezione Tornei<small>Attiva la voce Tornei nel dock</small></div><label class="switch"><input type="checkbox" id="setShowTourneys"><span class="sl"></span></label></div>
+      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Dati</h2>
+      <div class="data-btns"><button class="data-btn" id="exportData">Esporta backup</button><button class="data-btn" id="importData">Importa backup</button></div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <div class="ref">Salva o ripristina giocatori, partite, tornei e impostazioni — utile per cambiare dispositivo o non perdere i dati.</div>
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
@@ -183,6 +187,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=8"></script>
+<script src="assets/js/main.js?v=9"></script>
 </body>
 </html>

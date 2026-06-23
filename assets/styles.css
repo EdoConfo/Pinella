@@ -211,6 +211,9 @@
   .val-grid{display:grid;grid-template-columns:1fr 88px;gap:8px 10px;align-items:center;padding:4px 0 12px}
   .val-grid span{font-size:.86rem;font-weight:600;color:rgba(28,27,25,.75)}
   .val-grid input{border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:9px;padding:9px;font-family:'Hanken Grotesk';font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .data-btns{display:flex;gap:8px}
+  .data-btns .data-btn{flex:1;appearance:none;border:1px solid rgba(28,27,25,.16);background:#fff;border-radius:10px;padding:12px;font-family:'Hanken Grotesk';font-weight:700;font-size:.9rem;cursor:pointer;color:var(--ink)}
+  .data-btns .data-btn:active{background:var(--carta-2)}
   .ref{font-size:.8rem;color:rgba(28,27,25,.62);line-height:1.6;padding:2px 2px 6px}
   .ref b{color:var(--ink)}
   .danger{color:var(--rosso-deep);font-weight:700;text-align:center;width:100%;background:transparent;border:1px solid rgba(192,70,59,.35);border-radius:12px;padding:13px;cursor:pointer;font-family:'Hanken Grotesk';font-size:.95rem}

@@ -320,6 +320,34 @@
   function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
   function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
+  // ===== backup / restore =====
+  function backupName(){var d=new Date();function p(n){return("0"+n).slice(-2);}return "pinella-backup-"+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+".json";}
+  function exportData(){
+    var json=JSON.stringify(state,null,2),fname=backupName(),file=null;
+    try{file=new File([json],fname,{type:"application/json"});}catch(e){}
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Backup Pinella"}).then(function(){toast("Backup condiviso");}).catch(function(){});
+      return;
+    }
+    try{
+      var url=URL.createObjectURL(new Blob([json],{type:"application/json"})),a=document.createElement("a");
+      a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(url);},1000);
+      toast("Backup esportato");
+    }catch(e){toast("Esportazione non riuscita");}
+  }
+  function importData(file){
+    var r=new FileReader();
+    r.onload=function(){
+      var obj;try{obj=JSON.parse(r.result);}catch(e){toast("File non valido");return;}
+      if(!obj||typeof obj!=="object"||!("players" in obj||"settings" in obj||"tournaments" in obj)){toast("Non sembra un backup di Pinella");return;}
+      if(!confirm("Importare questo backup? I dati attuali verranno sostituiti."))return;
+      try{localStorage.setItem(KEY,JSON.stringify(obj));location.reload();}catch(e){toast("Importazione non riuscita");}
+    };
+    r.onerror=function(){toast("Errore nella lettura del file");};
+    r.readAsText(file);
+  }
+
   // ===== overlays / toast =====
   function openOv(sheet,scrim){$(scrim).classList.add("open");requestAnimationFrame(function(){$(sheet).classList.add("open");});}
   function closeOv(sheet,scrim){$(sheet).classList.remove("open");$(scrim).classList.remove("open");}
@@ -350,6 +378,9 @@
   $("setClose").addEventListener("click",function(){closeOv("setSheet","scrim2");});
   $("scrim2").addEventListener("click",function(){closeOv("setSheet","scrim2");});
   $("saveSettings").addEventListener("click",saveSettings);
+  $("exportData").addEventListener("click",exportData);
+  $("importData").addEventListener("click",function(){$("importFile").click();});
+  $("importFile").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(f)importData(f);e.target.value="";});
   $("pClose").addEventListener("click",function(){closeOv("pSheet","scrim4");});
   $("scrim4").addEventListener("click",function(){closeOv("pSheet","scrim4");});
   $("pSave").addEventListener("click",savePlayer);
