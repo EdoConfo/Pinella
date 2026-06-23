@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=14">
+<link rel="stylesheet" href="assets/styles.css?v=15">
 </head>
 <body>
 <div class="wrap">
@@ -82,6 +82,12 @@
   <section id="viewHistory" hidden>
     <h2 class="sec">Classifica giocatori</h2><div id="statsArea"></div>
     <h2 class="sec" style="margin-top:20px">Partite giocate</h2><div id="historyListArea"></div>
+  </section>
+
+  <!-- GAME DETAIL -->
+  <section id="viewGameDetail" hidden>
+    <div class="navbar" style="margin-bottom:4px"><button class="back" id="gameBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Storico</button><div class="ctx"><small>Partita</small><span id="gameDetailTitle"></span></div></div>
+    <div id="gameDetailArea"></div>
   </section>
 
   <footer id="footNote">Tutto salvato su questo dispositivo</footer>
@@ -194,6 +200,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=14"></script>
+<script src="assets/js/main.js?v=15"></script>
 </body>
 </html>

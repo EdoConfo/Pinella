@@ -70,6 +70,7 @@
     show("viewTourneys",v==="tourneys");
     show("viewTourney",v==="tourney");
     show("viewHistory",v==="history");
+    show("viewGameDetail",v==="game-detail");
     show("matchNav",v==="match-play");
     show("casualBar",v==="casual-play");
     show("btnFinish",v==="match-play");
@@ -80,6 +81,7 @@
     if(v==="tourneys")renderTourneys();
     if(v==="tourney")renderTourney();
     if(v==="history")renderHistory_view();
+    if(v==="game-detail")renderGameDetail();
     window.scrollTo(0,0);
   }
   function setDockActive(v){
@@ -87,7 +89,7 @@
     var tornei=(v==="tourneys"||v==="tourney");
     $("dockPartite").classList.toggle("on",partite);
     $("dockTornei").classList.toggle("on",tornei);
-    $("dockStorico").classList.toggle("on",v==="history");
+    $("dockStorico").classList.toggle("on",v==="history"||v==="game-detail");
   }
   function goPartita(){ if(state.casual.active){setCasualScorer();nav("casual-play");} else nav("casual-setup"); }
 
@@ -297,14 +299,32 @@
     list.innerHTML=games.map(function(g){
       var sa=g.totals[0],sb=g.totals[1],wa=sa>sb,wb=sb>sa,d=new Date(g.ts);
       var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+" · a "+fmt(g.target);
-      return '<div class="hgame"><div class="hg-top"><span>'+dstr+'</span><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div><div class="hg-row'+(wa?' w':'')+'"><span class="nm">'+esc(g.names[0])+'</span><span class="sc">'+fmt(sa)+'</span></div><div class="hg-row'+(wb?' w':'')+'"><span class="nm">'+esc(g.names[1])+'</span><span class="sc">'+fmt(sb)+'</span></div></div>';
+      return '<div class="hgame clk" data-id="'+g.id+'"><div class="hg-top"><span>'+dstr+'</span><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div><div class="hg-row'+(wa?' w':'')+'"><span class="nm">'+esc(g.names[0])+'</span><span class="sc">'+fmt(sa)+'</span></div><div class="hg-row'+(wb?' w':'')+'"><span class="nm">'+esc(g.names[1])+'</span><span class="sc">'+fmt(sb)+'</span></div></div>';
     }).join("");
-    list.querySelectorAll(".hg-rm").forEach(function(b){b.addEventListener("click",function(){deleteHistoryGame(b.dataset.id);});});
+    list.querySelectorAll(".hgame").forEach(function(el){el.addEventListener("click",function(){openGameDetail(el.dataset.id);});});
+    list.querySelectorAll(".hg-rm").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();deleteHistoryGame(b.dataset.id);});});
   }
   function deleteHistoryGame(id){
     if(!confirm("Eliminare questa partita dallo storico?"))return;
     state.history=(state.history||[]).filter(function(g){return g.id!==id;});
     persist();renderHistory_view();
+  }
+  var currentGameId=null;
+  function openGameDetail(id){currentGameId=id;nav("game-detail");}
+  function renderGameDetail(){
+    var g=(state.history||[]).filter(function(x){return x.id===currentGameId;})[0];
+    if(!g){nav("history");return;}
+    $("gameDetailTitle").textContent=g.names[0]+" vs "+g.names[1];
+    var rounds=g.rounds||[],ta=totals(rounds),sa=g.totals[0],sb=g.totals[1],wa=sa>sb,wb=sb>sa,d=new Date(g.ts);
+    var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+    var head='<div class="gd-card"><div class="gd-row'+(wa?' w':'')+'"><span class="nm">'+esc(g.names[0])+'</span><span class="sc">'+fmt(sa)+'</span></div><div class="gd-row'+(wb?' w':'')+'"><span class="nm">'+esc(g.names[1])+'</span><span class="sc">'+fmt(sb)+'</span></div></div><div class="ref" style="text-align:center">'+dstr+' · corsa a '+fmt(g.target)+'</div>';
+    var body;
+    if(rounds.length){
+      body='<h2 class="sec" style="margin-top:16px">Mani giocate</h2><table><thead><tr><th>#</th><th>'+esc(g.names[0])+'</th><th>'+esc(g.names[1])+'</th></tr></thead><tbody>'+rounds.map(function(r,i){var ra=roundScore(r.a),rb=roundScore(r.b),ca=ra>rb?' class="cell-win"':'',cb=rb>ra?' class="cell-win"':'';return '<tr><td>'+(i+1)+'</td><td'+ca+'>'+fmt(ra)+'</td><td'+cb+'>'+fmt(rb)+'</td></tr>';}).join("")+'</tbody><tfoot><tr><td>Totale</td><td>'+fmt(ta[0])+'</td><td>'+fmt(ta[1])+'</td></tr></tfoot></table>';
+    } else {
+      body='<div class="empty" style="margin-top:16px"><span class="big">Dettaglio non disponibile</span>Le mani di questa partita non sono state salvate.</div>';
+    }
+    $("gameDetailArea").innerHTML=head+body;
   }
 
   // ===== roster + player editor =====
@@ -443,6 +463,7 @@
   $("winShare").addEventListener("click",shareResult);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
   $("tourneyBack").addEventListener("click",function(){nav("tourneys");});
+  $("gameBack").addEventListener("click",function(){nav("history");});
   $("btnNewTourney").addEventListener("click",openNewTourney);
   $("sheetClose").addEventListener("click",function(){closeOv("sheet","scrim");});
   $("scrim").addEventListener("click",function(){closeOv("sheet","scrim");});
