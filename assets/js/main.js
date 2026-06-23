@@ -327,6 +327,48 @@
     $("gameDetailArea").innerHTML=head+body;
   }
 
+  // ===== player profile / stats =====
+  function playerProfile(id){
+    var games=0,wins=0,pf=0,pa=0,partners={},opponents={},recent=[];
+    function acc(myIds,oppIds,sa,sb,ts,myLbl,oppLbl){
+      var won=sa>sb;games++;if(won)wins++;pf+=sa;pa+=sb;
+      myIds.forEach(function(pid){if(pid&&pid!==id){partners[pid]=partners[pid]||{g:0,w:0};partners[pid].g++;if(won)partners[pid].w++;}});
+      oppIds.forEach(function(oid){if(oid){opponents[oid]=opponents[oid]||{g:0,beat:0};opponents[oid].g++;if(won)opponents[oid].beat++;}});
+      recent.push({ts:ts||0,opp:oppLbl,sa:sa,sb:sb,won:won});
+    }
+    (state.history||[]).forEach(function(g){
+      var idsA=(g.teams[0].members||[]).map(function(x){return x.id;}),idsB=(g.teams[1].members||[]).map(function(x){return x.id;});
+      var inA=idsA.indexOf(id)>-1,inB=idsB.indexOf(id)>-1;if(!inA&&!inB)return;
+      if(inA)acc(idsA,idsB,g.totals[0],g.totals[1],g.ts,g.names[0],g.names[1]);
+      else acc(idsB,idsA,g.totals[1],g.totals[0],g.ts,g.names[1],g.names[0]);
+    });
+    (state.tournaments||[]).forEach(function(t){
+      t.matches.forEach(function(m){if(!m.finished)return;var ca=t.couples[m.ci],cb=t.couples[m.cj],idsA=[ca.p1,ca.p2],idsB=[cb.p1,cb.p2];
+        var inA=idsA.indexOf(id)>-1,inB=idsB.indexOf(id)>-1;if(!inA&&!inB)return;var tot=totals(m.rounds);
+        if(inA)acc(idsA,idsB,tot[0],tot[1],t.createdAt,coupleLabel(ca),coupleLabel(cb));
+        else acc(idsB,idsA,tot[1],tot[0],t.createdAt,coupleLabel(cb),coupleLabel(ca));});
+    });
+    recent.sort(function(a,b){return b.ts-a.ts;});
+    var bp=null;Object.keys(partners).forEach(function(pid){var p=partners[pid];if(!bp||p.w>bp.w||(p.w===bp.w&&p.g>bp.g))bp={id:pid,w:p.w,g:p.g};});
+    var to=null;Object.keys(opponents).forEach(function(oid){var o=opponents[oid];if(!to||o.beat>to.beat)to={id:oid,beat:o.beat,g:o.g};});
+    return {games:games,wins:wins,pct:games?Math.round(wins/games*100):0,pf:pf,pa:pa,bestPartner:bp,topOpp:to,recent:recent.slice(0,5)};
+  }
+  function renderPlayerStats(id){
+    var box=$("pStats");if(!box)return;
+    if(!id){box.style.display="none";box.innerHTML="";return;}
+    box.style.display="";
+    var s=playerProfile(id);
+    if(s.games===0){box.innerHTML='<div class="ref" style="text-align:center;padding:4px 0 2px">Nessuna partita giocata.</div>';return;}
+    var html='<h2 class="sec" style="color:rgba(28,27,25,.5);margin-bottom:8px">Statistiche</h2>';
+    html+='<div class="pstat-tiles"><div class="pstat"><b>'+s.games+'</b><span>Partite</span></div><div class="pstat"><b>'+s.wins+'</b><span>Vittorie</span></div><div class="pstat"><b>'+s.pct+'%</b><span>Vinte</span></div></div>';
+    var extra=[];
+    if(s.bestPartner&&s.bestPartner.w>0)extra.push('Miglior compagno: <b>'+esc(playerName(s.bestPartner.id))+'</b> ('+s.bestPartner.w+'V)');
+    if(s.topOpp&&s.topOpp.beat>0)extra.push('Più battuto: <b>'+esc(playerName(s.topOpp.id))+'</b> ('+s.topOpp.beat+')');
+    if(extra.length)html+='<div class="ref" style="padding:6px 2px 2px">'+extra.join(' · ')+'</div>';
+    if(s.recent.length)html+='<div class="pstat-recent">'+s.recent.map(function(r){return '<div class="pr-row"><span class="r-res '+(r.won?'w':'l')+'">'+(r.won?'V':'P')+'</span><span class="r-lbl">'+esc(r.opp)+'</span><span class="r-sc">'+fmt(r.sa)+'–'+fmt(r.sb)+'</span></div>';}).join("")+'</div>';
+    box.innerHTML=html;
+  }
+
   // ===== roster + player editor =====
   function renderRoster(){
     var html=state.players.length===0
@@ -360,6 +402,7 @@
     $("pName").value=p?p.name:"";
     draftAvatar=p&&p.avatar?{symbol:p.avatar.symbol||null,color:p.avatar.color||null,photo:p.avatar.photo||null}:{symbol:null,color:null,photo:null};
     $("pDelete").style.display=id?"":"none";
+    renderPlayerStats(id);
     renderAvatarPicker();openOv("pSheet","scrim4");
   }
   function savePlayer(){
