@@ -186,7 +186,7 @@
     var body=$("sheetBody");
     body.querySelectorAll(".stepper button").forEach(function(btn){btn.addEventListener("click",function(){var st=btn.parentNode;draft[st.dataset.side][st.dataset.k]=Math.max(0,draft[st.dataset.side][st.dataset.k]+parseInt(btn.dataset.d,10));syncSheet();});});
     body.querySelectorAll(".numbox").forEach(function(inp){inp.addEventListener("input",function(){var v=parseInt(inp.value,10);if(isNaN(v))v=0;draft[inp.dataset.side][inp.dataset.k]=v;syncSheet(true);});});
-    body.querySelectorAll('.check input').forEach(function(c){c.addEventListener("change",function(){draft[c.dataset.side][c.dataset.k]=c.checked;syncSheet();});});
+    body.querySelectorAll('.check input').forEach(function(c){c.addEventListener("change",function(){var side=c.dataset.side,k=c.dataset.k;draft[side][k]=c.checked;if(c.checked&&k==="chius")draft[side].pozz=false;if(c.checked&&k==="pozz")draft[side].chius=false;syncSheet();});});
     body.querySelectorAll(".calc-toggle").forEach(function(btn){btn.addEventListener("click",function(){var counter=body.querySelector('.counter[data-side="'+btn.dataset.side+'"][data-k="'+btn.dataset.k+'"]');btn.classList.toggle("active",counter.classList.toggle("open"));});});
     body.querySelectorAll(".counter").forEach(function(counter){var side=counter.dataset.side,k=counter.dataset.k;counter.querySelectorAll(".chip").forEach(function(chip){var cspan=chip.querySelector(".c");chip.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var cur=parseInt(cspan.textContent,10)+parseInt(b.dataset.d,10);if(cur<0)cur=0;cspan.textContent=cur;var sum=0;counter.querySelectorAll(".chip").forEach(function(ch){sum+=parseInt(ch.querySelector(".c").textContent,10)*parseInt(ch.dataset.val,10);});counter.querySelector(".sum b").textContent=sum;draft[side][k]=sum;body.querySelector('.numbox[data-side="'+side+'"][data-k="'+k+'"]').value=sum?sum:"";syncSheet();});});});});
   }
@@ -288,12 +288,10 @@
   }
   function renderHistory_view(){
     var stats=playerStats(),area=$("statsArea");
-    if(state.players.length===0){area.innerHTML='<div class="empty"><span class="big">Nessun giocatore</span>Aggiungi giocatori e gioca qualche partita per vedere le statistiche.</div>';}
-    else{
-      var rows=state.players.map(function(p){var s=stats[p.id]||{games:0,wins:0,pf:0,pa:0};return {p:p,games:s.games,wins:s.wins,pct:s.games?Math.round(s.wins/s.games*100):0,pf:s.pf};});
-      rows.sort(function(a,b){return b.wins-a.wins||b.pct-a.pct||b.games-a.games||b.pf-a.pf;});
-      area.innerHTML='<table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+(r.games?r.pct+"%":"—")+'</td></tr>';}).join("")+'</tbody></table>';
-    }
+    var rows=state.players.map(function(p){var s=stats[p.id]||{games:0,wins:0,pf:0,pa:0};return {p:p,games:s.games,wins:s.wins,pct:s.games?Math.round(s.wins/s.games*100):0,pf:s.pf};}).filter(function(r){return r.games>0;});
+    rows.sort(function(a,b){return b.wins-a.wins||b.pct-a.pct||b.games-a.games||b.pf-a.pf;});
+    if(rows.length===0){area.innerHTML='<div class="empty"><span class="big">Classifica vuota</span>Nessun giocatore ha ancora giocato una partita.</div>';}
+    else{area.innerHTML='<table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+r.pct+'%</td></tr>';}).join("")+'</tbody></table>';}
     var list=$("historyListArea"),games=(state.history||[]).slice().reverse();
     if(games.length===0){list.innerHTML='<div class="empty"><span class="big">Ancora nessuna partita</span>Le partite casual concluse compariranno qui quando inizi una nuova partita.</div>';return;}
     list.innerHTML=games.map(function(g){
