@@ -176,36 +176,6 @@
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
-<!-- TEMP DIAGNOSTIC -->
-<div id="vpBottomMarker" style="position:fixed;left:0;right:0;bottom:0;height:4px;background:#ff2d55;z-index:99999;pointer-events:none"></div>
-<div id="dbgPanel" style="position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top) + 4px);z-index:99999;background:rgba(0,0,0,.85);color:#0f0;font:11px/1.4 monospace;padding:8px 10px;border-radius:8px;pointer-events:none;white-space:pre-wrap"></div>
-<script>
-(function(){
-  var probe=document.createElement('div');
-  probe.style.cssText='position:fixed;bottom:0;left:0;width:0;padding-bottom:env(safe-area-inset-bottom);visibility:hidden';
-  document.body.appendChild(probe);
-  function read(){
-    var sab=Math.round(probe.getBoundingClientRect().height);
-    var dock=document.querySelector('.dock');
-    var dr=dock?dock.getBoundingClientRect():null;
-    var vv=window.visualViewport;
-    var p=document.getElementById('dbgPanel');
-    if(!p)return;
-    p.textContent=
-      'innerH='+window.innerHeight+'  clientH='+document.documentElement.clientHeight+'\n'+
-      'visualVP='+(vv?Math.round(vv.height):'-')+'  screen.h='+screen.height+'\n'+
-      'safe-area-bottom='+sab+'\n'+
-      'dock.top='+(dr?Math.round(dr.top):'-')+'  dock.bottom='+(dr?Math.round(dr.bottom):'-')+'\n'+
-      'gap sotto dock = '+(dr?(window.innerHeight-Math.round(dr.bottom)):'-')+'px';
-  }
-  read();
-  setInterval(read,400);
-  window.addEventListener('resize',read);
-  if(window.visualViewport)window.visualViewport.addEventListener('resize',read);
-})();
-</script>
-<!-- /TEMP DIAGNOSTIC -->
-
 <script src="assets/js/main.js?v=5"></script>
 </body>
 </html>
