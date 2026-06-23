@@ -131,6 +131,15 @@
   .stat.done{color:#1d3a31;background:var(--oro-soft)}
   .stat.live{color:#241a06;background:linear-gradient(100deg,var(--oro-deep),var(--oro))}
 
+  /* history + stats */
+  .hgame{border:1px solid var(--feltro-line);border-radius:14px;background:linear-gradient(180deg, rgba(244,239,226,.05), rgba(0,0,0,.1));padding:11px 14px;margin-bottom:8px}
+  .hgame .hg-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);font-weight:700}
+  .hgame .hg-rm{appearance:none;border:none;background:transparent;color:var(--muted-2);font-size:1.2rem;line-height:1;cursor:pointer;padding:0 2px;flex:none}
+  .hgame .hg-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.95rem;padding:2px 0}
+  .hgame .hg-row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .hgame .hg-row .sc{font-family:'Fraunces',serif;font-variant-numeric:tabular-nums;font-weight:600;flex:none}
+  .hgame .hg-row.w .nm,.hgame .hg-row.w .sc{color:var(--oro-soft)}
+
   /* sheets */
   .scrim{position:fixed;inset:0;background:rgba(8,20,16,.55);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s;z-index:40}
   .scrim.open{opacity:1;pointer-events:auto}

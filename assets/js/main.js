@@ -8,7 +8,7 @@
   var SYMBOLS=["\u2660","\u2665","\u2666","\u2663","\uD83E\uDD8A","\uD83D\uDC2F","\uD83E\uDD81","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDD25","\u2B50","\uD83D\uDC51","\uD83C\uDFAF","\uD83C\uDF40","\uD83C\uDFB2","\uD83D\uDE80","\uD83C\uDF55"];
   var COLORS=["#C0463B","#15463B","#A9842F","#3B6FC0","#7A3BC0","#C03B8F","#2E7D5B","#1C1B19"];
 
-  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[]};
+  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[],history:[]};
 
   var state=loadRaw();
   if(!state){
@@ -29,6 +29,7 @@
   }
   delete state.quick;
   state.tournaments=(state.tournaments||[]).map(function(t){ if(t.target==null)t.target=state.settings.target||2005; return t; });
+  state.history=Array.isArray(state.history)?state.history:[];
 
   var $=function(id){return document.getElementById(id);};
   function fmt(n){return Math.round(n).toLocaleString("it-IT");}
@@ -68,6 +69,7 @@
     show("viewScorer",v==="casual-play"||v==="match-play");
     show("viewTourneys",v==="tourneys");
     show("viewTourney",v==="tourney");
+    show("viewHistory",v==="history");
     show("matchNav",v==="match-play");
     show("casualBar",v==="casual-play");
     show("btnFinish",v==="match-play");
@@ -77,6 +79,7 @@
     if(v==="casual-play"||v==="match-play")renderScorer();
     if(v==="tourneys")renderTourneys();
     if(v==="tourney")renderTourney();
+    if(v==="history")renderHistory_view();
     window.scrollTo(0,0);
   }
   function setDockActive(v){
@@ -84,6 +87,7 @@
     var tornei=(v==="tourneys"||v==="tourney");
     $("dockPartite").classList.toggle("on",partite);
     $("dockTornei").classList.toggle("on",tornei);
+    $("dockStorico").classList.toggle("on",v==="history");
   }
   function goPartita(){ if(state.casual.active){setCasualScorer();nav("casual-play");} else nav("casual-setup"); }
 
@@ -123,8 +127,14 @@
     state.casual={active:true,teams:[{members:ma},{members:mb}],target:tg,rounds:[]};
     persist();setCasualScorer();nav("casual-play");
   }
+  function archiveCasual(){
+    var c=state.casual;if(!c||!c.rounds||!c.rounds.length)return;
+    var tot=totals(c.rounds);
+    state.history.push({id:uid(),ts:Date.now(),mode:"casual",target:c.target,teams:[{members:((c.teams[0]||{}).members)||[]},{members:((c.teams[1]||{}).members)||[]}],names:[casualLabel(0),casualLabel(1)],rounds:c.rounds.slice(),totals:tot});
+  }
   function newCasual(){
-    if(state.casual.rounds.length && !confirm("Iniziare una nuova partita? Il tabellone attuale verrà azzerato."))return;
+    if(state.casual.rounds.length && !confirm("Iniziare una nuova partita? Quella attuale verrà salvata nello storico."))return;
+    archiveCasual();
     state.casual.active=false;assign={};guests=[];persist();nav("casual-setup");
   }
 
@@ -258,6 +268,46 @@
     state.tournaments.unshift(t);persist();closeOv("tSheet","scrim3");openTourney(t.id);toast("Torneo creato · "+matches.length+" partite");
   }
 
+  // ===== history + stats =====
+  function playerStats(){
+    var m={};
+    function ensure(id){if(!m[id])m[id]={games:0,wins:0,pf:0,pa:0};return m[id];}
+    function record(idsA,idsB,sa,sb){
+      var wa=sa>sb,wb=sb>sa;
+      idsA.forEach(function(id){if(!id)return;var s=ensure(id);s.games++;s.pf+=sa;s.pa+=sb;if(wa)s.wins++;});
+      idsB.forEach(function(id){if(!id)return;var s=ensure(id);s.games++;s.pf+=sb;s.pa+=sa;if(wb)s.wins++;});
+    }
+    (state.history||[]).forEach(function(g){
+      record((g.teams[0].members||[]).map(function(x){return x.id;}),(g.teams[1].members||[]).map(function(x){return x.id;}),g.totals[0],g.totals[1]);
+    });
+    (state.tournaments||[]).forEach(function(t){
+      t.matches.forEach(function(mt){if(!mt.finished)return;var tot=totals(mt.rounds),ca=t.couples[mt.ci],cb=t.couples[mt.cj];record([ca.p1,ca.p2],[cb.p1,cb.p2],tot[0],tot[1]);});
+    });
+    return m;
+  }
+  function renderHistory_view(){
+    var stats=playerStats(),area=$("statsArea");
+    if(state.players.length===0){area.innerHTML='<div class="empty"><span class="big">Nessun giocatore</span>Aggiungi giocatori e gioca qualche partita per vedere le statistiche.</div>';}
+    else{
+      var rows=state.players.map(function(p){var s=stats[p.id]||{games:0,wins:0,pf:0,pa:0};return {p:p,games:s.games,wins:s.wins,pct:s.games?Math.round(s.wins/s.games*100):0,pf:s.pf};});
+      rows.sort(function(a,b){return b.wins-a.wins||b.pct-a.pct||b.games-a.games||b.pf-a.pf;});
+      area.innerHTML='<table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+(r.games?r.pct+"%":"—")+'</td></tr>';}).join("")+'</tbody></table>';
+    }
+    var list=$("historyListArea"),games=(state.history||[]).slice().reverse();
+    if(games.length===0){list.innerHTML='<div class="empty"><span class="big">Ancora nessuna partita</span>Le partite casual concluse compariranno qui quando inizi una nuova partita.</div>';return;}
+    list.innerHTML=games.map(function(g){
+      var sa=g.totals[0],sb=g.totals[1],wa=sa>sb,wb=sb>sa,d=new Date(g.ts);
+      var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+" · a "+fmt(g.target);
+      return '<div class="hgame"><div class="hg-top"><span>'+dstr+'</span><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div><div class="hg-row'+(wa?' w':'')+'"><span class="nm">'+esc(g.names[0])+'</span><span class="sc">'+fmt(sa)+'</span></div><div class="hg-row'+(wb?' w':'')+'"><span class="nm">'+esc(g.names[1])+'</span><span class="sc">'+fmt(sb)+'</span></div></div>';
+    }).join("");
+    list.querySelectorAll(".hg-rm").forEach(function(b){b.addEventListener("click",function(){deleteHistoryGame(b.dataset.id);});});
+  }
+  function deleteHistoryGame(id){
+    if(!confirm("Eliminare questa partita dallo storico?"))return;
+    state.history=(state.history||[]).filter(function(g){return g.id!==id;});
+    persist();renderHistory_view();
+  }
+
   // ===== roster + player editor =====
   function renderRoster(){
     var html=state.players.length===0
@@ -357,6 +407,7 @@
   // ===== events =====
   $("dockPartite").addEventListener("click",goPartita);
   $("dockTornei").addEventListener("click",function(){nav("tourneys");});
+  $("dockStorico").addEventListener("click",function(){nav("history");});
   $("dockGiocatori").addEventListener("click",openPlayers);
   $("dockImpostazioni").addEventListener("click",openSettings);
   $("playersClose").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
