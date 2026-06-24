@@ -442,8 +442,20 @@
 
   // ===== settings =====
   function applyTourneysVisibility(){var show=state.settings.showTourneys!==false;$("dockTornei").hidden=!show;if(!show&&(view==="tourneys"||view==="tourney"))nav("casual-setup");}
+
+  function updateRulesUI(){
+    var v=state.settings.values;
+    $("semiHint").textContent="Bonus intermedio da "+v.semi+" punti";
+    $("rulesChiusTxt").textContent="+"+v.chius;
+    $("rulesPulitoTxt").textContent="+"+v.pulito;
+    $("rulesSemiTxt").textContent="+"+v.semi;
+    $("rulesSporcoTxt").textContent="+"+v.sporco;
+    $("rulesChiusTxt2").textContent="+"+v.chius;
+    $("rulesPozzTxt").textContent="−"+v.pozz;
+  }
+
   function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
-  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
+  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();updateRulesUI();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
   // ===== backup / restore =====
   function backupName(){var d=new Date();function p(n){return("0"+n).slice(-2);}return "pinella-backup-"+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+".json";}
@@ -547,6 +559,7 @@
   $("tNewPerson").addEventListener("keydown",function(e){if(e.key==="Enter"){$("tAddPerson").click();}});
   buildPickers();
   applyTourneysVisibility();
+  updateRulesUI();
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7"].forEach(function(s){$(s).classList.remove("open");});}});
 
   goPartita();

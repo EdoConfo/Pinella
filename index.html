@@ -150,7 +150,7 @@
       <button class="rules-link" id="openRules2"><svg class="bk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 4v16H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M19 16H7a2 2 0 0 0-2 2"/><path d="M9 8h6"/></svg><span>Come si gioca a Burraco</span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
       <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Punteggio</h2>
       <div class="set-row"><label>Punteggio predefinito</label><input class="txtbox" id="setTarget" type="number" inputmode="numeric" min="100" step="5"><span class="ref" style="padding:2px 2px 0">Si può cambiare a inizio di ogni partita.</span></div>
-      <div class="toggle-row"><div class="t-txt">Burraco semipulito<small>Bonus intermedio da 150 punti</small></div><label class="switch"><input type="checkbox" id="setSemi"><span class="sl"></span></label></div>
+      <div class="toggle-row"><div class="t-txt">Burraco semipulito<small id="semiHint">Bonus intermedio da 150 punti</small></div><label class="switch"><input type="checkbox" id="setSemi"><span class="sl"></span></label></div>
       <details class="adv"><summary>Valori bonus (varianti regionali)</summary>
         <div class="val-grid"><span>Burraco pulito</span><input type="number" id="vPulito" inputmode="numeric"><span>Burraco semipulito</span><input type="number" id="vSemi" inputmode="numeric"><span>Burraco sporco</span><input type="number" id="vSporco" inputmode="numeric"><span>Chiusura</span><input type="number" id="vChius" inputmode="numeric"><span>Pozzetto non preso</span><input type="number" id="vPozz" inputmode="numeric"></div>
       </details>
@@ -205,12 +205,12 @@
       </ul>
       <div class="ref" style="padding-top:0">Nel segnapunti: spunta <b>Pozzetto non preso</b> nei primi due casi; nel terzo inserisci invece i <b>punti carte in mano</b>.</div>
       <h4>La chiusura</h4>
-      <p>Per <b>chiudere</b> la mano devi aver completato almeno un <b>burraco</b> e <b>preso il pozzetto</b>: cali tutte le carte e scarti l'ultima. Chi chiude prende il <b>bonus di chiusura (+100)</b>.</p>
+      <p>Per <b>chiudere</b> la mano devi aver completato almeno un <b>burraco</b> e <b>preso il pozzetto</b>: cali tutte le carte e scarti l'ultima. Chi chiude prende il <b>bonus di chiusura (<span id="rulesChiusTxt">+100</span>)</b>.</p>
       <h4>Il punteggio</h4>
       <p>A fine mano si sommano i bonus e i valori delle carte <b>calate</b> (positivi) e si sottraggono quelle rimaste <b>in mano</b> (negativi).</p>
       <ul>
-        <li>Burraco pulito <b>+200</b> · semipulito <b>+150</b> · sporco <b>+100</b></li>
-        <li>Chiusura <b>+100</b> · pozzetto non preso <b>−100</b></li>
+        <li>Burraco pulito <b id="rulesPulitoTxt">+200</b> · semipulito <b id="rulesSemiTxt">+150</b> · sporco <b id="rulesSporcoTxt">+100</b></li>
+        <li>Chiusura <b id="rulesChiusTxt2">+100</b> · pozzetto non preso <b id="rulesPozzTxt">−100</b></li>
         <li>Jolly 30 · Pinella (2) 20 · Asso 15 · dall'8 al K = 10 · dal 3 al 7 = 5</li>
       </ul>
       <div class="ref" style="padding-top:6px">Le regole hanno varianti regionali. I valori dei bonus sono modificabili in Impostazioni.</div>
