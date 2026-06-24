@@ -498,8 +498,10 @@
     (state.history||[]).forEach(function(g){
       var idsA=(g.teams[0].members||[]).map(function(x){return x.id;}),idsB=(g.teams[1].members||[]).map(function(x){return x.id;});
       var inA=idsA.indexOf(id)>-1,inB=idsB.indexOf(id)>-1;if(!inA&&!inB)return;
-      if(inA)acc(idsA,idsB,g.totals[0],g.totals[1],g.ts,g.names[0],g.names[1]);
-      else acc(idsB,idsA,g.totals[1],g.totals[0],g.ts,g.names[1],g.names[0]);
+      var tot=g.totals||totals(g.rounds||[]);
+      var nA=(g.names&&g.names[0])||"Squadra A",nB=(g.names&&g.names[1])||"Squadra B";
+      if(inA)acc(idsA,idsB,tot[0],tot[1],g.ts||g.date,nA,nB);
+      else acc(idsB,idsA,tot[1],tot[0],g.ts||g.date,nB,nA);
     });
     (state.tournaments||[]).forEach(function(t){
       t.matches.forEach(function(m){if(!m.finished)return;var ca=t.couples[m.ci],cb=t.couples[m.cj],idsA=[ca.p1,ca.p2],idsB=[cb.p1,cb.p2];
