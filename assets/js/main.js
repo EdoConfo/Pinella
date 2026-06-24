@@ -8,7 +8,7 @@
   var SYMBOLS=["\u2660","\u2665","\u2666","\u2663","\uD83E\uDD8A","\uD83D\uDC2F","\uD83E\uDD81","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDD25","\u2B50","\uD83D\uDC51","\uD83C\uDFAF","\uD83C\uDF40","\uD83C\uDFB2","\uD83D\uDE80","\uD83C\uDF55"];
   var COLORS=["#C0463B","#15463B","#A9842F","#3B6FC0","#7A3BC0","#C03B8F","#2E7D5B","#1C1B19"];
 
-  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,haptic:true,dealer:true,tallyCards:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[],history:[]};
+  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,haptic:true,dealer:true,tallyCards:false,bigTeams:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[],history:[]};
 
   var state=loadRaw();
   if(!state){
@@ -98,15 +98,17 @@
   function countTeam(t){var n=0;for(var k in assign)if(assign[k]===t)n++;return n;}
   function allEntries(){return state.players;}
   function membersOf(t){var res=[];allEntries().forEach(function(p){if(assign[p.id]===t)res.push({id:p.id,name:p.name});});return res;}
+  function teamCap(){return state.settings.bigTeams?3:2;}
   function cycle(id){
-    var cur=assign[id]||null;
-    if(cur===null){ if(countTeam("A")<2)assign[id]="A"; else if(countTeam("B")<2)assign[id]="B"; }
-    else if(cur==="A"){ if(countTeam("B")<2)assign[id]="B"; else delete assign[id]; }
+    var cap=teamCap(),cur=assign[id]||null;
+    if(cur===null){ if(countTeam("A")<cap)assign[id]="A"; else if(countTeam("B")<cap)assign[id]="B"; }
+    else if(cur==="A"){ if(countTeam("B")<cap)assign[id]="B"; else delete assign[id]; }
     else { delete assign[id]; }
     renderSetup();
   }
   function renderSetup(){
     $("setupTarget").value=state.casual.target||state.settings.target;
+    if($("capMax"))$("capMax").textContent=teamCap();
     var grid=$("setupGrid"),entries=allEntries();
     if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Tocca <b>+ Aggiungi giocatore</b> per crearne uno.</div>'; }
     else{
@@ -147,26 +149,48 @@
     toast("Partita salvata nello storico");
   }
 
+  // ===== dealer (mazziere) =====
+  function seating(){
+    var A=(scorer.members&&scorer.members[0])||[],B=(scorer.members&&scorer.members[1])||[],out=[],n=Math.max(A.length,B.length);
+    for(var i=0;i<n;i++){if(A[i])out.push({side:0,mi:i,m:A[i]});if(B[i])out.push({side:1,mi:i,m:B[i]});}
+    return out;
+  }
+  function dealerStore(){return scorer.mode==="match"?getMatch(scorer.tId,scorer.mId):state.casual;}
+  function currentDealer(){
+    var seats=seating();if(!seats.length)return null;
+    var st=dealerStore(),start=(st&&st.dealerStart)||0;
+    var idx=((start+scorer.rounds.length)%seats.length+seats.length)%seats.length;
+    return {idx:idx,seat:seats[idx]};
+  }
+  function advanceDealer(){
+    var seats=seating();if(seats.length<2)return;
+    var st=dealerStore();if(!st)return;
+    st.dealerStart=(((st.dealerStart||0)+1)%seats.length+seats.length)%seats.length;
+    persist();renderScorer();
+  }
+
   // ===== scorer render =====
   function renderScorer(){
     var t=totals(scorer.rounds),a=t[0],b=t[1],tg=scorer.target;
+    var won=(a>=tg||b>=tg)&&a!==b;
     $("nameA").textContent=scorer.names[0];$("nameB").textContent=scorer.names[1];
     $("totalA").textContent=fmt(a);$("totalB").textContent=fmt(b);$("targetLabel").textContent=fmt(tg);
-    // avatars
-    $("avsA").innerHTML=(scorer.members&&scorer.members[0]||[]).map(function(m){return memberAvatar(m,30);}).join("");
-    $("avsB").innerHTML=(scorer.members&&scorer.members[1]||[]).map(function(m){return memberAvatar(m,30);}).join("");
-    // dealer
-    var showDealer = state.settings.dealer !== false && !won;
-    var dIdx = scorer.rounds.length % 2;
-    $("dealerA").hidden = !(showDealer && dIdx === 0);
-    $("dealerB").hidden = !(showDealer && dIdx === 1);
+    // dealer (rotates one seat per hand; tap the bar to set who deals)
+    var cd=(state.settings.dealer!==false && !won)?currentDealer():null;
+    function avsHTML(arr,sn){return arr.map(function(m,i){return memberAvatar(m,30,(cd&&cd.seat.side===sn&&cd.seat.mi===i)?"dealer":"");}).join("");}
+    $("avsA").innerHTML=avsHTML((scorer.members&&scorer.members[0])||[],0);
+    $("avsB").innerHTML=avsHTML((scorer.members&&scorer.members[1])||[],1);
+    $("dealerA").hidden=true;$("dealerB").hidden=true;
+    var db=$("dealerBar");
+    if(cd){var seats=seating(),nx=seats[(cd.idx+1)%seats.length];db.hidden=false;db.innerHTML='<span class="dz-ic">🃏</span> Mazziere: <b>'+esc(cd.seat.m.name)+'</b>'+(seats.length>1?'<span class="dz-hint"> · poi '+esc(nx.m.name)+' · tocca per cambiare</span>':'');}
+    else db.hidden=true;
 
     $("sideA").classList.toggle("lead",a>b&&a>0);$("sideB").classList.toggle("lead",b>a&&b>0);
     $("fillA").style.width=Math.min(100,a/tg*100)+"%";$("fillB").style.width=Math.min(100,b/tg*100)+"%";
     var diff=Math.abs(a-b);
     $("metaA").textContent=a>b&&a>0?"+"+fmt(diff):(tg-a>0?fmt(tg-a)+" al traguardo":"");
     $("metaB").textContent=b>a&&b>0?"+"+fmt(diff):(tg-b>0?fmt(tg-b)+" al traguardo":"");
-    var won=(a>=tg||b>=tg)&&a!==b,w=$("winner");
+    var w=$("winner");
     if(won){var wi=a>b?0:1;$("winnerName").textContent=scorer.names[wi]+" vince!";$("winnerSub").textContent="con "+fmt(Math.max(a,b))+" punti · margine di "+fmt(diff);w.classList.add("show");if(!scorer._won)celebrate();}else w.classList.remove("show");
     scorer._won=won;
     if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
@@ -521,8 +545,8 @@
     $("rulesPozzTxt").textContent="−"+v.pozz;
   }
 
-  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("setHaptic").checked=s.haptic!==false;$("setDealer").checked=s.dealer!==false;$("setTally").checked=s.tallyCards===true;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
-  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;s.haptic=$("setHaptic").checked;s.dealer=$("setDealer").checked;s.tallyCards=$("setTally").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();updateRulesUI();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
+  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("setHaptic").checked=s.haptic!==false;$("setDealer").checked=s.dealer!==false;$("setTally").checked=s.tallyCards===true;$("setBigTeams").checked=s.bigTeams===true;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
+  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;s.haptic=$("setHaptic").checked;s.dealer=$("setDealer").checked;s.tallyCards=$("setTally").checked;s.bigTeams=$("setBigTeams").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();updateRulesUI();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
   // ===== backup / restore =====
   function backupName(){var d=new Date();function p(n){return("0"+n).slice(-2);}return "pinella-backup-"+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+".json";}
@@ -596,6 +620,7 @@
   $("addGuest").addEventListener("click",function(){openPlayers();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
+  $("dealerBar").addEventListener("click",advanceDealer);
   $("btnFinish").addEventListener("click",finishMatch);
   $("endCasual").addEventListener("click",terminateCasual);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});

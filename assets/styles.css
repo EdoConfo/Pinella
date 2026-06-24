@@ -62,6 +62,10 @@
   .winner .txt b{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--oro-soft);display:block}
   .winner .txt span{font-size:.82rem;color:var(--muted)}
   .confetti-c{position:fixed;inset:0;z-index:90;pointer-events:none}
+  .dealer-bar{margin-top:12px;padding:9px 14px;border:1px solid var(--feltro-line);border-radius:99px;background:rgba(244,239,226,.05);color:var(--txt);font-size:.84rem;text-align:center;cursor:pointer}
+  .dealer-bar b{color:var(--oro-soft)}
+  .dealer-bar .dz-hint{color:var(--muted-2);font-size:.78rem}
+  .side .avs .av.dealer{outline:2px solid var(--oro-soft);outline-offset:1px;z-index:1}
 
   .add-btn{appearance:none;border:none;cursor:pointer;width:100%;padding:17px;border-radius:var(--r);background:var(--carta);color:var(--ink);font-family:'Hanken Grotesk';font-weight:700;font-size:1.02rem;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:var(--shadow);transition:transform .12s,background .15s}
   .add-btn:hover{background:#fff}
