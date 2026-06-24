@@ -247,6 +247,11 @@
   .val-grid{display:grid;grid-template-columns:1fr 88px;gap:8px 10px;align-items:center;padding:4px 0 12px}
   .val-grid span{font-size:.86rem;font-weight:600;color:rgba(28,27,25,.75)}
   .val-grid input{border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:9px;padding:9px;font-family:'Hanken Grotesk';font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .rules-link{display:flex;align-items:center;gap:12px;width:100%;appearance:none;background:var(--carta-2);border:none;border-radius:12px;padding:13px 14px;cursor:pointer;font-family:'Hanken Grotesk';text-align:left}
+  .rules-link span{flex:1;font-weight:600;font-size:.95rem;color:var(--ink)}
+  .rules-link .bk{width:20px;height:20px;color:var(--ink);flex:none}
+  .rules-link .ch{width:18px;height:18px;color:rgba(28,27,25,.4);flex:none}
+  .rules-link:active{background:#e1d8c2}
   .data-btns{display:flex;gap:8px}
   .data-btns .data-btn{flex:1;appearance:none;border:1px solid rgba(28,27,25,.16);background:#fff;border-radius:10px;padding:12px;font-family:'Hanken Grotesk';font-weight:700;font-size:.9rem;cursor:pointer;color:var(--ink)}
   .data-btns .data-btn:active{background:var(--carta-2)}
