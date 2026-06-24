@@ -224,13 +224,45 @@
 
   // ===== card-tally popup =====
   var cardSide=null,cardK=null;
+  var CARD_LIMITS={jolly:4,pin:8,asso:8,fig:48,bas:40};
+  function getOtherCounts(side,k,cardKey){
+    var sum=0;
+    ["a","b"].forEach(function(s){
+      ["tavolo","mano"].forEach(function(c){
+        if(s===side&&c===k)return;
+        var counts=(draft[s]&&draft[s][c+"Cards"])||{};
+        sum+=(counts[cardKey]||0);
+      });
+    });
+    return sum;
+  }
   function cardsTotalNow(){var sum=0;$("cardsBody").querySelectorAll(".chip").forEach(function(ch){sum+=(parseInt(ch.querySelector(".c").textContent,10)||0)*parseInt(ch.dataset.val,10);});return sum;}
   function updateCardsTotal(){$("cardsTotal").textContent=fmt(cardsTotalNow());}
   function buildCardsBody(){
     var counts=(draft[cardSide]&&draft[cardSide][cardK+"Cards"])||{};
     var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">'+n+'</span><button type="button" data-d="1">+</button></div></div>';}).join("");
     $("cardsBody").innerHTML='<div class="cards-list">'+rows+'<div class="sum">Totale <b id="cardsTotal">0</b></div></div>';
-    $("cardsBody").querySelectorAll(".chip").forEach(function(chip){var cspan=chip.querySelector(".c");chip.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var cur=parseInt(cspan.textContent,10)+parseInt(b.dataset.d,10);if(cur<0)cur=0;cspan.textContent=cur;updateCardsTotal();});});});
+    $("cardsBody").querySelectorAll(".chip").forEach(function(chip){
+      var cspan=chip.querySelector(".c");
+      var key=chip.dataset.k;
+      chip.querySelectorAll("button").forEach(function(b){
+        b.addEventListener("click",function(){
+          var d=parseInt(b.dataset.d,10);
+          var cur=parseInt(cspan.textContent,10);
+          if(d>0){
+            var other=getOtherCounts(cardSide,cardK,key);
+            if(cur+other>=CARD_LIMITS[key]){
+              toast("Limite raggiunto per questa carta ("+CARD_LIMITS[key]+" max)");
+              return;
+            }
+          }
+          var next=cur+d;
+          if(next<0)next=0;
+          cspan.textContent=next;
+          updateCardsTotal();
+        });
+      });
+    });
     updateCardsTotal();
   }
   function openCardsPopup(side,k){cardSide=side;cardK=k;$("cardsTitle").textContent=(k==="mano"?"Carte in mano":"Carte sul tavolo");buildCardsBody();openOv("cardsSheet","scrim8");}
@@ -346,7 +378,12 @@
   function deleteHistoryGame(id){
     if(!confirm("Eliminare questa partita dallo storico?"))return;
     state.history=(state.history||[]).filter(function(g){return g.id!==id;});
-    persist();renderHistory_view();
+    persist();
+    if(view==="game-detail"&&currentGameId===id){
+      nav("history");
+    }else{
+      renderHistory_view();
+    }
   }
   var currentGameId=null;
   function openGameDetail(id){currentGameId=id;nav("game-detail");}
@@ -363,7 +400,11 @@
     } else {
       body='<div class="empty" style="margin-top:16px"><span class="big">Dettaglio non disponibile</span>Le mani di questa partita non sono state salvate.</div>';
     }
-    $("gameDetailArea").innerHTML=head+body;
+    var actions='<div class="tourney-actions"><button id="btnDeleteGame">Elimina partita</button></div>';
+    $("gameDetailArea").innerHTML=head+body+actions;
+    $("btnDeleteGame").addEventListener("click",function(){
+      deleteHistoryGame(g.id);
+    });
   }
 
   // ===== player profile / stats =====
