@@ -205,18 +205,12 @@
   .numbox:focus,.txtbox:focus,select:focus{outline:2px solid var(--oro);outline-offset:1px}
   .with-calc{display:flex;gap:6px}
   .with-calc .numbox{flex:1}
-  .calc-toggle{flex:none;width:44px;border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:10px;cursor:pointer;display:grid;place-items:center;font-size:1.1rem}
-  .calc-toggle.active{background:var(--ink);color:var(--carta);border-color:var(--ink)}
-  .counter{display:none;background:#fff;border-radius:10px;padding:8px;gap:6px;flex-direction:column;margin-top:2px}
-  .counter.open{display:flex}
   .chip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(28,27,25,.04);border-radius:9px;padding:5px 6px 5px 10px}
   .chip .lbl{font-size:.76rem;font-weight:600}
   .chip .lbl small{color:rgba(28,27,25,.5);font-weight:600}
   .chip .ctrl{display:flex;align-items:center;gap:6px}
   .chip .ctrl button{appearance:none;border:none;width:28px;height:28px;border-radius:7px;background:rgba(28,27,25,.08);font-size:1rem;font-weight:700;cursor:pointer;color:var(--ink)}
   .chip .ctrl .c{font-family:'Fraunces',serif;font-weight:600;min-width:16px;text-align:center;font-variant-numeric:tabular-nums}
-  .counter .sum{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 0;font-size:.78rem;font-weight:700}
-  .counter .sum b{font-family:'Fraunces',serif;font-size:1.05rem}
   .checks{display:flex;flex-direction:column;gap:8px}
   .check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.82rem;font-weight:600;color:rgba(28,27,25,.78)}
   .check input{appearance:none;width:20px;height:20px;border-radius:6px;border:2px solid rgba(28,27,25,.25);flex:none;cursor:pointer;position:relative;transition:.12s}

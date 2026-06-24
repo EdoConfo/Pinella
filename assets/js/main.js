@@ -197,8 +197,7 @@
     if(state.settings.tallyCards){
       return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="cards-btn" data-side="'+side+'" data-k="'+k+'" aria-label="Conta carte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="10.5" height="13.5" rx="2"/><path d="M9 7.2V6.2a2 2 0 0 1 2.35-1.97l5.7.9a2 2 0 0 1 1.66 2.3l-1.55 10"/></svg></button></div>';
     }
-    var chips=CARDS.map(function(c){return '<div class="chip" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">0</span><button type="button" data-d="1">+</button></div></div>';}).join("");
-    return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="calc-toggle" data-side="'+side+'" data-k="'+k+'" aria-label="Conta carte">🧮</button></div><div class="counter" data-side="'+side+'" data-k="'+k+'">'+chips+'<div class="sum">Totale carte <b>0</b></div></div>';
+    return '<input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0">';
   }
   function buildSheet(){$("sheetBody").innerHTML='<div class="teams2">'+paneHTML("a")+paneHTML("b")+'</div>';$("paneNamea").textContent=scorer.names[0];$("paneNameb").textContent=scorer.names[1];wireSheet();syncSheet();}
   function wireSheet(){
@@ -207,8 +206,6 @@
     body.querySelectorAll(".numbox").forEach(function(inp){inp.addEventListener("input",function(){var v=parseInt(inp.value,10);if(isNaN(v))v=0;var sd=inp.dataset.side,kk=inp.dataset.k;draft[sd][kk]=v;if(state.settings.tallyCards)delete draft[sd][kk+"Cards"];syncSheet(true);});});
     body.querySelectorAll(".cards-btn").forEach(function(btn){btn.addEventListener("click",function(){openCardsPopup(btn.dataset.side,btn.dataset.k);});});
     body.querySelectorAll('.check input').forEach(function(c){c.addEventListener("change",function(){var side=c.dataset.side,k=c.dataset.k;draft[side][k]=c.checked;if(c.checked&&k==="chius")draft[side].pozz=false;if(c.checked&&k==="pozz")draft[side].chius=false;syncSheet();});});
-    body.querySelectorAll(".calc-toggle").forEach(function(btn){btn.addEventListener("click",function(){var counter=body.querySelector('.counter[data-side="'+btn.dataset.side+'"][data-k="'+btn.dataset.k+'"]');btn.classList.toggle("active",counter.classList.toggle("open"));});});
-    body.querySelectorAll(".counter").forEach(function(counter){var side=counter.dataset.side,k=counter.dataset.k;counter.querySelectorAll(".chip").forEach(function(chip){var cspan=chip.querySelector(".c");chip.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var cur=parseInt(cspan.textContent,10)+parseInt(b.dataset.d,10);if(cur<0)cur=0;cspan.textContent=cur;var sum=0;counter.querySelectorAll(".chip").forEach(function(ch){sum+=parseInt(ch.querySelector(".c").textContent,10)*parseInt(ch.dataset.val,10);});counter.querySelector(".sum b").textContent=sum;draft[side][k]=sum;body.querySelector('.numbox[data-side="'+side+'"][data-k="'+k+'"]').value=sum?sum:"";syncSheet();});});});});
   }
   function syncSheet(skipBoxes){
     ["a","b"].forEach(function(side){var d=draft[side],body=$("sheetBody");
@@ -570,8 +567,8 @@
   $("scrim").addEventListener("click",function(){closeOv("sheet","scrim");});
   $("saveRound").addEventListener("click",saveRound);
   $("deleteRound").addEventListener("click",deleteRound);
-  $("setClose").addEventListener("click",function(){closeOv("setSheet","scrim2");});
-  $("scrim2").addEventListener("click",function(){closeOv("setSheet","scrim2");});
+  $("setClose").addEventListener("click",saveSettings);
+  $("scrim2").addEventListener("click",saveSettings);
   $("saveSettings").addEventListener("click",saveSettings);
   $("exportData").addEventListener("click",exportData);
   $("importData").addEventListener("click",function(){$("importFile").click();});
@@ -596,7 +593,7 @@
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet","cardsSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7","scrim8"].forEach(function(s){$(s).classList.remove("open");});}});
 
   document.addEventListener("click", function(e) {
-    if (e.target.closest("button, .clk, .dock-btn, .pchip, .person, .tcard, .match, .sym, .col, .calc-toggle, .check input, .switch input, select, .close-x, .hg-rm, .rm, .undo")) {
+    if (e.target.closest("button, .clk, .dock-btn, .pchip, .person, .tcard, .match, .sym, .col, .check input, .switch input, select, .close-x, .hg-rm, .rm, .undo")) {
       vib();
     }
   });
