@@ -5,14 +5,14 @@
    - Same-origin assets (versioned with ?v=): cache-first.
    - Cross-origin (Google Fonts): straight to network; CSS has system fallbacks offline.
    Bump VERSION (and the ?v= in ASSETS / index.html) whenever assets change. */
-var VERSION = "21";
+var VERSION = "22";
 var CACHE = "pinella-" + VERSION;
 var ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./assets/styles.css?v=21",
-  "./assets/js/main.js?v=21",
+  "./assets/styles.css?v=22",
+  "./assets/js/main.js?v=22",
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png"
