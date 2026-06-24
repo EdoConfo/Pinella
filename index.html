@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=30">
+<link rel="stylesheet" href="assets/styles.css?v=31">
 </head>
 <body>
 <div class="wrap">
@@ -171,6 +171,17 @@
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
 </div>
 
+<!-- Table / seating popup -->
+<div class="scrim" id="scrim9"></div>
+<div class="sheet" id="tableSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3>Tavolo</h3><button class="close-x" id="tableClose">&times;</button></div>
+  <div class="sheet-body">
+    <p class="ref" style="text-align:center;padding-top:0">Tocca un giocatore per renderlo <b>mazziere</b> 🃏 · trascinalo su un altro per scambiare i posti.</p>
+    <div class="table-area" id="tableArea"></div>
+  </div>
+</div>
+
 <!-- Card-tally popup -->
 <div class="scrim" id="scrim8"></div>
 <div class="sheet" id="cardsSheet" role="dialog" aria-modal="true">
@@ -273,6 +284,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=30"></script>
+<script src="assets/js/main.js?v=31"></script>
 </body>
 </html>

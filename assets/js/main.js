@@ -150,11 +150,21 @@
   }
 
   // ===== dealer (mazziere) =====
-  function seating(){
+  function seatKey(side,mi,m){return (m&&m.id)||("s"+side+"m"+mi);}
+  function baseSeats(){
     var A=(scorer.members&&scorer.members[0])||[],B=(scorer.members&&scorer.members[1])||[],out=[],n=Math.max(A.length,B.length);
-    for(var i=0;i<n;i++){if(A[i])out.push({side:0,mi:i,m:A[i]});if(B[i])out.push({side:1,mi:i,m:B[i]});}
+    for(var i=0;i<n;i++){if(A[i])out.push({side:0,mi:i,m:A[i],key:seatKey(0,i,A[i])});if(B[i])out.push({side:1,mi:i,m:B[i],key:seatKey(1,i,B[i])});}
     return out;
   }
+  function seating(){
+    var base=baseSeats(),st=dealerStore(),order=st&&st.seatOrder;
+    if(!order||!order.length)return base;
+    var byKey={};base.forEach(function(s){byKey[s.key]=s;});
+    var out=[];order.forEach(function(k){if(byKey[k]){out.push(byKey[k]);delete byKey[k];}});
+    base.forEach(function(s){if(byKey[s.key])out.push(s);});
+    return out;
+  }
+  function ensureOrder(){var st=dealerStore();if(!st)return[];if(!st.seatOrder||!st.seatOrder.length)st.seatOrder=baseSeats().map(function(s){return s.key;});return st.seatOrder;}
   function dealerStore(){return scorer.mode==="match"?getMatch(scorer.tId,scorer.mId):state.casual;}
   function currentDealer(){
     var seats=seating();if(!seats.length)return null;
@@ -167,6 +177,48 @@
     var st=dealerStore();if(!st)return;
     st.dealerStart=(((st.dealerStart||0)+1)%seats.length+seats.length)%seats.length;
     persist();renderScorer();
+  }
+  function dealerIdxNow(){var seats=seating(),N=seats.length;if(!N)return 0;var st=dealerStore();return((((st&&st.dealerStart)||0)+scorer.rounds.length)%N+N)%N;}
+  function openTable(){ if(!seating().length)return; renderTable(); openOv("tableSheet","scrim9"); }
+  function renderTable(){
+    var seats=seating(),N=seats.length,wrap=$("tableArea");if(!wrap)return;
+    var dIdx=dealerIdxNow();
+    var W=wrap.clientWidth||320,cx=W/2,cy=160,rx=Math.max(64,W/2-50),ry=118;
+    var html='<div class="table-felt"><span>Giro di gioco</span></div>';
+    seats.forEach(function(s,i){
+      var ang=-Math.PI/2+i*2*Math.PI/N,x=cx+rx*Math.cos(ang),y=cy+ry*Math.sin(ang),isD=(i===dIdx);
+      html+='<div class="seat s'+(s.side)+(isD?" dealer":"")+'" data-key="'+s.key+'" style="left:'+Math.round(x)+'px;top:'+Math.round(y)+'px">'+(isD?'<span class="seat-d">🃏</span>':'')+memberAvatar(s.m,46)+'<span class="snm">'+esc(s.m.name)+'</span></div>';
+    });
+    wrap.innerHTML=html;
+    wireTable(wrap);
+  }
+  function tableSetDealer(key){
+    var seats=seating(),N=seats.length,st=dealerStore();if(!st||!N)return;
+    var idx=-1;seats.forEach(function(s,i){if(s.key===key)idx=i;});if(idx<0)return;
+    st.dealerStart=((idx-(scorer.rounds.length%N)+N)%N);
+    persist();renderTable();renderScorer();
+  }
+  function tableSwap(keyA,keyB){
+    if(keyA===keyB)return;var order=ensureOrder(),ia=order.indexOf(keyA),ib=order.indexOf(keyB);if(ia<0||ib<0)return;
+    var seats=seating(),N=seats.length,curKey=seats[dealerIdxNow()].key;
+    var tmp=order[ia];order[ia]=order[ib];order[ib]=tmp;
+    var ns=seating(),ci=-1;ns.forEach(function(s,i){if(s.key===curKey)ci=i;});
+    var st=dealerStore();if(ci>=0)st.dealerStart=((ci-(scorer.rounds.length%N)+N)%N);
+    persist();renderTable();renderScorer();
+  }
+  function wireTable(wrap){
+    wrap.querySelectorAll(".seat").forEach(function(el){
+      var moved=false,sx=0,sy=0,pid=null;
+      el.addEventListener("pointerdown",function(e){moved=false;sx=e.clientX;sy=e.clientY;pid=e.pointerId;try{el.setPointerCapture(pid);}catch(_){}el.classList.add("grab");});
+      el.addEventListener("pointermove",function(e){if(pid===null)return;var dx=e.clientX-sx,dy=e.clientY-sy;if(!moved&&dx*dx+dy*dy>49)moved=true;if(moved){var r=wrap.getBoundingClientRect();el.classList.add("dragging");el.style.left=(e.clientX-r.left)+"px";el.style.top=(e.clientY-r.top)+"px";}});
+      el.addEventListener("pointerup",function(e){if(pid===null)return;pid=null;el.classList.remove("grab");
+        if(!moved){tableSetDealer(el.dataset.key);return;}
+        var r=wrap.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top,best=null,bd=1e9;
+        wrap.querySelectorAll(".seat").forEach(function(o){if(o===el)return;var ox=parseFloat(o.style.left),oy=parseFloat(o.style.top),d=(ox-px)*(ox-px)+(oy-py)*(oy-py);if(d<bd){bd=d;best=o;}});
+        if(best&&bd<6400)tableSwap(el.dataset.key,best.dataset.key);else renderTable();
+      });
+      el.addEventListener("pointercancel",function(){pid=null;moved=false;renderTable();});
+    });
   }
 
   // ===== scorer render =====
@@ -182,7 +234,7 @@
     $("avsB").innerHTML=avsHTML((scorer.members&&scorer.members[1])||[],1);
     $("dealerA").hidden=true;$("dealerB").hidden=true;
     var db=$("dealerBar");
-    if(cd){var seats=seating(),nx=seats[(cd.idx+1)%seats.length];db.hidden=false;db.innerHTML='<span class="dz-ic">🃏</span> Mazziere: <b>'+esc(cd.seat.m.name)+'</b>'+(seats.length>1?'<span class="dz-hint"> · poi '+esc(nx.m.name)+' · tocca per cambiare</span>':'');}
+    if(cd){var seats=seating(),nx=seats[(cd.idx+1)%seats.length];db.hidden=false;db.innerHTML='<span class="dz-ic">🃏</span> Mazziere: <b>'+esc(cd.seat.m.name)+'</b>'+(seats.length>1?'<span class="dz-hint"> · poi '+esc(nx.m.name)+' · tocca per il tavolo</span>':'');}
     else db.hidden=true;
 
     $("sideA").classList.toggle("lead",a>b&&a>0);$("sideB").classList.toggle("lead",b>a&&b>0);
@@ -620,7 +672,9 @@
   $("addGuest").addEventListener("click",function(){openPlayers();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
-  $("dealerBar").addEventListener("click",advanceDealer);
+  $("dealerBar").addEventListener("click",openTable);
+  $("tableClose").addEventListener("click",function(){closeOv("tableSheet","scrim9");});
+  $("scrim9").addEventListener("click",function(){closeOv("tableSheet","scrim9");});
   $("btnFinish").addEventListener("click",finishMatch);
   $("endCasual").addEventListener("click",terminateCasual);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
@@ -656,7 +710,7 @@
   buildPickers();
   applyTourneysVisibility();
   updateRulesUI();
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet","cardsSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7","scrim8"].forEach(function(s){$(s).classList.remove("open");});}});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet","cardsSheet","tableSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7","scrim8","scrim9"].forEach(function(s){$(s).classList.remove("open");});}});
 
   document.addEventListener("click", function(e) {
     if (e.target.closest("button, .clk, .dock-btn, .pchip, .person, .tcard, .match, .sym, .col, .check input, .switch input, select, .close-x, .hg-rm, .rm, .undo")) {

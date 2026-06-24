@@ -176,6 +176,20 @@
   /* card-tally popup stacks above the round sheet */
   #scrim8{z-index:85}
   #cardsSheet{z-index:88}
+  /* table / seating popup */
+  #scrim9{z-index:85}
+  #tableSheet{z-index:88}
+  .table-area{position:relative;height:320px;margin-top:4px;touch-action:none;user-select:none}
+  .table-felt{position:absolute;left:50%;top:160px;transform:translate(-50%,-50%);width:62%;height:170px;border-radius:50%;background:radial-gradient(ellipse at 50% 35%, #1c5a4b, #0f352b);border:1px solid rgba(28,27,25,.12);display:grid;place-items:center}
+  .table-felt span{font-family:'Fraunces',serif;color:rgba(237,234,223,.55);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+  .seat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:grab;touch-action:none}
+  .seat .av{border:2px solid var(--carta-2);box-shadow:0 2px 6px -2px rgba(0,0,0,.4)}
+  .seat.s0 .av{border-color:var(--oro-soft)}
+  .seat.s1 .av{border-color:#9FD3C0}
+  .seat .snm{font-size:.74rem;font-weight:600;color:var(--ink);max-width:74px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seat.dealer .av{outline:3px solid var(--oro);outline-offset:1px}
+  .seat .seat-d{position:absolute;top:-10px;right:-6px;font-size:1rem;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+  .seat.dragging{z-index:5;cursor:grabbing;opacity:.92}
   .cards-btn{flex:none;width:44px;border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:10px;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
   .cards-btn svg{width:20px;height:20px}
   .cards-list{display:flex;flex-direction:column;gap:8px}
