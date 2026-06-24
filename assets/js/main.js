@@ -721,7 +721,42 @@
     }
   });
 
-  goPartita();
+  function wireSheetsDrag() {
+    document.querySelectorAll(".sheet").forEach(function(sheet) {
+      var handle = sheet.querySelector(".sheet-head") || sheet.querySelector(".grabber");
+      if (!handle) return;
+      var startY = 0, dragging = false, pid = null;
+      handle.addEventListener("pointerdown", function(e) {
+        if(e.target.closest("button, input, select")) return;
+        startY = e.clientY;
+        dragging = true;
+        pid = e.pointerId;
+        sheet.style.transition = "none";
+        try{handle.setPointerCapture(pid);}catch(_){}
+      });
+      handle.addEventListener("pointermove", function(e) {
+        if (!dragging) return;
+        var dy = e.clientY - startY;
+        if (dy > 0) sheet.style.transform = "translateY(" + dy + "px)";
+      });
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        try{handle.releasePointerCapture(pid);}catch(_){}
+        sheet.style.transition = "";
+        var dy = e.clientY - startY;
+        sheet.style.transform = "";
+        if (dy > 80) {
+          var btn = sheet.querySelector(".close-x");
+          if (btn) btn.click();
+        }
+      }
+      handle.addEventListener("pointerup", endDrag);
+      handle.addEventListener("pointercancel", endDrag);
+    });
+  }
+  wireSheetsDrag();
 
+  goPartita();
   if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}
 })();
