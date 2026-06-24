@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=22">
+<link rel="stylesheet" href="assets/styles.css?v=23">
 </head>
 <body>
 <div class="wrap">
@@ -186,9 +186,15 @@
         <li><b>Scale</b>: 3+ carte dello stesso seme in sequenza (es. 5-6-7 di cuori).</li>
         <li><b>Gruppi</b>: 3+ carte dello stesso valore.</li>
       </ul>
-      <p>Una matta può rimpiazzare una carta mancante (una sola per combinazione).</p>
+      <p>Una matta sostituisce una carta mancante: <b>una sola matta (jolly o pinella) per combinazione</b>. Eccezione: se un 2 è giocato al <b>posto del 2</b> (valore naturale), non conta come matta &mdash; puoi quindi aggiungere comunque un'altra matta o un altro 2 come jolly.</p>
       <h4>Il burraco</h4>
-      <p>Una combinazione di <b>7 o più carte</b>. È <b>pulito</b> se non contiene matte, <b>sporco</b> se ne contiene una. Il <b>semipulito</b> è una variante facoltativa.</p>
+      <p>Una combinazione di <b>7 o più carte</b>:</p>
+      <ul>
+        <li><b>Pulito</b>: tutte carte naturali, senza matte.</li>
+        <li><b>Semipulito</b>: con una matta o pinella posizionata <b>all'inizio o alla fine</b> della sequenza.</li>
+        <li><b>Sporco</b>: con una matta o pinella <b>in mezzo</b> alla combinazione.</li>
+      </ul>
+      <p>Il semipulito è una variante facoltativa (attivabile in Impostazioni).</p>
       <h4>Il pozzetto</h4>
       <p>Quando finisci le carte in mano per la prima volta, prendi un <b>pozzetto</b> e continui a giocare con quelle 11 carte.</p>
       <h4>La chiusura</h4>
@@ -246,6 +252,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=22"></script>
+<script src="assets/js/main.js?v=23"></script>
 </body>
 </html>
