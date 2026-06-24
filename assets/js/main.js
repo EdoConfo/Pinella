@@ -195,7 +195,7 @@
   function stepper(side,k){return '<div class="stepper" data-side="'+side+'" data-k="'+k+'"><button type="button" data-d="-1">−</button><span class="val">0</span><button type="button" data-d="1">+</button></div>';}
   function pointsBox(side,k){
     if(state.settings.tallyCards){
-      return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="cards-btn" data-side="'+side+'" data-k="'+k+'">Conta carte</button></div>';
+      return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="cards-btn" data-side="'+side+'" data-k="'+k+'" aria-label="Conta carte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="10.5" height="13.5" rx="2"/><path d="M9 7.2V6.2a2 2 0 0 1 2.35-1.97l5.7.9a2 2 0 0 1 1.66 2.3l-1.55 10"/></svg></button></div>';
     }
     var chips=CARDS.map(function(c){return '<div class="chip" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">0</span><button type="button" data-d="1">+</button></div></div>';}).join("");
     return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="calc-toggle" data-side="'+side+'" data-k="'+k+'" aria-label="Conta carte">🧮</button></div><div class="counter" data-side="'+side+'" data-k="'+k+'">'+chips+'<div class="sum">Totale carte <b>0</b></div></div>';

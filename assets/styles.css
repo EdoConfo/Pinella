@@ -172,7 +172,8 @@
   /* card-tally popup stacks above the round sheet */
   #scrim8{z-index:85}
   #cardsSheet{z-index:88}
-  .cards-btn{flex:none;border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:10px;cursor:pointer;font-family:'Hanken Grotesk';font-weight:700;font-size:.82rem;color:var(--ink);padding:0 14px;white-space:nowrap}
+  .cards-btn{flex:none;width:44px;border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:10px;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
+  .cards-btn svg{width:20px;height:20px}
   .cards-list{display:flex;flex-direction:column;gap:8px}
   .cards-list .chip .ctrl button{width:32px;height:32px;font-size:1.1rem}
   .cards-list .sum{display:flex;justify-content:space-between;align-items:center;padding:6px 6px 0;font-size:.86rem;font-weight:700}
