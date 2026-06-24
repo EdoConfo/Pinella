@@ -55,12 +55,8 @@
   .winner{display:none;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--r);background:linear-gradient(100deg, rgba(203,161,76,.18), rgba(203,161,76,.06));border:1px solid rgba(203,161,76,.4);box-shadow:var(--shadow)}
   .winner.show{display:flex}
   .winner .cup{font-size:1.6rem}
-  .winner .txt{flex:1;min-width:0}
   .winner .txt b{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;color:var(--oro-soft);display:block}
   .winner .txt span{font-size:.82rem;color:var(--muted)}
-  .win-share{appearance:none;border:1px solid rgba(203,161,76,.5);background:rgba(203,161,76,.15);color:var(--oro-soft);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
-  .win-share:active{background:rgba(203,161,76,.28)}
-  .win-share svg{width:18px;height:18px}
   .confetti-c{position:fixed;inset:0;z-index:90;pointer-events:none}
 
   .add-btn{appearance:none;border:none;cursor:pointer;width:100%;padding:17px;border-radius:var(--r);background:var(--carta);color:var(--ink);font-family:'Hanken Grotesk';font-weight:700;font-size:1.02rem;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:var(--shadow);transition:transform .12s,background .15s}

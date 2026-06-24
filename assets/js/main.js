@@ -73,7 +73,7 @@
     show("viewGameDetail",v==="game-detail");
     show("matchNav",v==="match-play");
     show("casualBar",v==="casual-play");
-    show("btnFinish",v==="match-play"||v==="casual-play");
+    show("btnFinish",v==="match-play");
     show("footNote",v==="casual-setup"||v==="casual-play");
     setDockActive(v);
     if(v==="casual-setup")renderSetup();
@@ -163,8 +163,8 @@
     var won=(a>=tg||b>=tg)&&a!==b,w=$("winner");
     if(won){var wi=a>b?0:1;$("winnerName").textContent=scorer.names[wi]+" vince!";$("winnerSub").textContent="con "+fmt(Math.max(a,b))+" punti · margine di "+fmt(diff);w.classList.add("show");if(!scorer._won)celebrate();}else w.classList.remove("show");
     scorer._won=won;
-    if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").hidden=false;$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
-    else if(scorer.mode==="casual"){$("btnFinish").hidden=scorer.rounds.length===0;$("btnFinish").textContent="Termina partita";}
+    if(scorer.mode==="match"){var m=getMatch(scorer.tId,scorer.mId);$("btnFinish").textContent=m&&m.finished?"Riapri partita":"Termina partita";}
+    if(scorer.mode==="casual"){$("endCasual").hidden=scorer.rounds.length===0;}
     if(scorer.mode==="casual")$("casualTitle").textContent=scorer.names[0]+" vs "+scorer.names[1];
     renderHistory();persist();
   }
@@ -493,13 +493,6 @@
     if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
     confetti();
   }
-  function shareResult(){
-    var t=totals(scorer.rounds),a=t[0],b=t[1];if(a===b){toast("Nessun vincitore ancora");return;}
-    var wi=a>b?0:1,li=wi?0:1,txt="🏆 "+scorer.names[wi]+" batte "+scorer.names[li]+" "+fmt(Math.max(a,b))+"–"+fmt(Math.min(a,b))+" · Pinella";
-    if(navigator.share){navigator.share({text:txt}).catch(function(){});}
-    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast("Risultato copiato");},function(){toast("Copia non riuscita");});}
-    else toast("Condivisione non supportata");
-  }
 
   // ===== events =====
   $("dockPartite").addEventListener("click",goPartita);
@@ -515,8 +508,8 @@
   $("addGuest").addEventListener("click",function(){openPlayers();});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
-  $("btnFinish").addEventListener("click",function(){if(scorer.mode==="match")finishMatch();else terminateCasual();});
-  $("winShare").addEventListener("click",shareResult);
+  $("btnFinish").addEventListener("click",finishMatch);
+  $("endCasual").addEventListener("click",terminateCasual);
   $("matchBack").addEventListener("click",function(){openTourney(scorer.tId);});
   $("tourneyBack").addEventListener("click",function(){nav("tourneys");});
   $("gameBack").addEventListener("click",function(){nav("history");});
