@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=23">
+<link rel="stylesheet" href="assets/styles.css?v=24">
 </head>
 <body>
 <div class="wrap">
@@ -197,8 +197,15 @@
       <p>Il semipulito è una variante facoltativa (attivabile in Impostazioni).</p>
       <h4>Il pozzetto</h4>
       <p>Quando finisci le carte in mano per la prima volta, prendi un <b>pozzetto</b> e continui a giocare con quelle 11 carte.</p>
+      <p>Quando l'avversario chiude, la penalità dipende da cosa hai fatto col tuo pozzetto:</p>
+      <ul>
+        <li><b>Non preso</b>: paghi <b>−100</b>.</li>
+        <li><b>Preso ma non ancora toccato</b>: paghi comunque <b>−100</b>.</li>
+        <li><b>Già iniziato</b> (anche una sola carta usata): nessuna penalità fissa, paghi solo il valore delle carte rimaste <b>in mano</b>.</li>
+      </ul>
+      <div class="ref" style="padding-top:0">Nel segnapunti: spunta <b>Pozzetto non preso</b> nei primi due casi; nel terzo inserisci invece i <b>punti carte in mano</b>.</div>
       <h4>La chiusura</h4>
-      <p>Per <b>chiudere</b> la mano devi aver completato almeno un <b>burraco</b> e <b>preso il pozzetto</b>: cali tutte le carte e scarti l'ultima. Chi chiude prende il bonus; chi non ha preso il pozzetto subisce una penalità.</p>
+      <p>Per <b>chiudere</b> la mano devi aver completato almeno un <b>burraco</b> e <b>preso il pozzetto</b>: cali tutte le carte e scarti l'ultima. Chi chiude prende il <b>bonus di chiusura (+100)</b>.</p>
       <h4>Il punteggio</h4>
       <p>A fine mano si sommano i bonus e i valori delle carte <b>calate</b> (positivi) e si sottraggono quelle rimaste <b>in mano</b> (negativi).</p>
       <ul>
@@ -252,6 +259,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=23"></script>
+<script src="assets/js/main.js?v=24"></script>
 </body>
 </html>
