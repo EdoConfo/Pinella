@@ -199,8 +199,11 @@
     persist();renderTable();renderScorer();
   }
   function tableSwap(keyA,keyB){
+    var seats=seating();
+    var sa,sb;seats.forEach(function(s){if(s.key===keyA)sa=s;if(s.key===keyB)sb=s;});
+    if(!sa||!sb||sa.side!==sb.side){ toast("Puoi scambiare solo giocatori della stessa squadra"); renderTable(); return; }
     if(keyA===keyB)return;var order=ensureOrder(),ia=order.indexOf(keyA),ib=order.indexOf(keyB);if(ia<0||ib<0)return;
-    var seats=seating(),N=seats.length,curKey=seats[dealerIdxNow()].key;
+    var N=seats.length,curKey=seats[dealerIdxNow()].key;
     var tmp=order[ia];order[ia]=order[ib];order[ib]=tmp;
     var ns=seating(),ci=-1;ns.forEach(function(s,i){if(s.key===curKey)ci=i;});
     var st=dealerStore();if(ci>=0)st.dealerStart=((ci-(scorer.rounds.length%N)+N)%N);
