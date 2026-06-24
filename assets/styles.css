@@ -29,6 +29,9 @@
   .navbar .ctx{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;line-height:1.15;min-width:0;flex:1}
   .navbar .ctx small{display:block;font-family:'Hanken Grotesk';font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
   .navbar .restart{appearance:none;border:1px solid var(--feltro-line);background:rgba(244,239,226,.06);color:var(--txt);height:38px;padding:0 14px;border-radius:99px;cursor:pointer;font-weight:600;font-size:.84rem;flex:none}
+  #casualBar{flex-wrap:wrap;row-gap:10px}
+  #casualBar .ctx{flex:1 1 100%}
+  #casualBar .restart{flex:1}
 
   /* avatars */
   .av{border-radius:50%;display:inline-grid;place-items:center;font-family:'Fraunces',serif;font-weight:600;color:#fff;flex:none;overflow:hidden;background-size:cover;background-position:center;line-height:1}
