@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=25">
+<link rel="stylesheet" href="assets/styles.css?v=26">
 </head>
 <body>
 <div class="wrap">
@@ -55,9 +55,9 @@
   <section id="viewScorer" hidden>
     <div class="board">
       <div class="board-grid">
-        <div class="side" id="sideA"><div class="avs" id="avsA"></div><div class="name" id="nameA">NOI</div><div class="total" id="totalA">0</div><div class="meta" id="metaA"></div><div class="track"><div class="fill" id="fillA"></div></div></div>
+        <div class="side" id="sideA"><div class="avs" id="avsA"></div><div class="name"><span id="nameA">NOI</span><span class="dealer-badge" id="dealerA" hidden>🃏</span></div><div class="total" id="totalA">0</div><div class="meta" id="metaA"></div><div class="track"><div class="fill" id="fillA"></div></div></div>
         <div class="divider"></div>
-        <div class="side" id="sideB"><div class="avs" id="avsB"></div><div class="name" id="nameB">LORO</div><div class="total" id="totalB">0</div><div class="meta" id="metaB"></div><div class="track"><div class="fill" id="fillB"></div></div></div>
+        <div class="side" id="sideB"><div class="avs" id="avsB"></div><div class="name"><span id="nameB">LORO</span><span class="dealer-badge" id="dealerB" hidden>🃏</span></div><div class="total" id="totalB">0</div><div class="meta" id="metaB"></div><div class="track"><div class="fill" id="fillB"></div></div></div>
       </div>
       <div class="target-row">Corsa a <b id="targetLabel">2005</b> punti</div>
     </div>
@@ -155,7 +155,10 @@
         <div class="val-grid"><span>Burraco pulito</span><input type="number" id="vPulito" inputmode="numeric"><span>Burraco semipulito</span><input type="number" id="vSemi" inputmode="numeric"><span>Burraco sporco</span><input type="number" id="vSporco" inputmode="numeric"><span>Chiusura</span><input type="number" id="vChius" inputmode="numeric"><span>Pozzetto non preso</span><input type="number" id="vPozz" inputmode="numeric"></div>
       </details>
       <div class="ref"><b>Valori carte</b> &mdash; Jolly 30 &middot; Pinella 20 &middot; Asso 15 &middot; dall'8 al K = 10 &middot; dal 3 al 7 = 5.</div>
+      <div class="toggle-row"><div class="t-txt">Conta le carte<small>Per tavolo e mano: inserisci le carte per tipo, calcola l'app</small></div><label class="switch"><input type="checkbox" id="setTally"><span class="sl"></span></label></div>
       <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Visualizzazione</h2>
+      <div class="toggle-row"><div class="t-txt">Vibrazione (Feedback aptico)<small>Leggera vibrazione sui tasti</small></div><label class="switch"><input type="checkbox" id="setHaptic" checked><span class="sl"></span></label></div>
+      <div class="toggle-row"><div class="t-txt">Indicatore del mazziere<small>Mostra a chi tocca dare le carte</small></div><label class="switch"><input type="checkbox" id="setDealer" checked><span class="sl"></span></label></div>
       <div class="toggle-row"><div class="t-txt">Mostra sezione Tornei<small>Attiva la voce Tornei nel dock</small></div><label class="switch"><input type="checkbox" id="setShowTourneys"><span class="sl"></span></label></div>
       <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Dati</h2>
       <div class="data-btns"><button class="data-btn" id="exportData">Esporta backup</button><button class="data-btn" id="importData">Importa backup</button></div>
@@ -164,6 +167,15 @@
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
+</div>
+
+<!-- Card-tally popup -->
+<div class="scrim" id="scrim8"></div>
+<div class="sheet" id="cardsSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3 id="cardsTitle">Conta le carte</h3><button class="close-x" id="cardsClose">&times;</button></div>
+  <div class="sheet-body" id="cardsBody"></div>
+  <div class="sheet-foot"><button class="btn btn-primary" id="cardsDone">Fatto</button></div>
 </div>
 
 <!-- Rules / how-to-play sheet -->
@@ -259,6 +271,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=25"></script>
+<script src="assets/js/main.js?v=26"></script>
 </body>
 </html>

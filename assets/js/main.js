@@ -8,7 +8,7 @@
   var SYMBOLS=["\u2660","\u2665","\u2666","\u2663","\uD83E\uDD8A","\uD83D\uDC2F","\uD83E\uDD81","\uD83D\uDC3C","\uD83D\uDC38","\uD83E\uDD89","\uD83D\uDC2C","\uD83E\uDD8B","\uD83D\uDD25","\u2B50","\uD83D\uDC51","\uD83C\uDFAF","\uD83C\uDF40","\uD83C\uDFB2","\uD83D\uDE80","\uD83C\uDF55"];
   var COLORS=["#C0463B","#15463B","#A9842F","#3B6FC0","#7A3BC0","#C03B8F","#2E7D5B","#1C1B19"];
 
-  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[],history:[]};
+  var DEF={players:[],settings:{target:2005,semipulito:true,showTourneys:false,haptic:true,dealer:true,tallyCards:false,values:{pulito:200,semi:150,sporco:100,chius:100,pozz:100}},casual:{active:false,teams:[],target:2005,rounds:[]},tournaments:[],history:[]};
 
   var state=loadRaw();
   if(!state){
@@ -155,6 +155,12 @@
     // avatars
     $("avsA").innerHTML=(scorer.members&&scorer.members[0]||[]).map(function(m){return memberAvatar(m,30);}).join("");
     $("avsB").innerHTML=(scorer.members&&scorer.members[1]||[]).map(function(m){return memberAvatar(m,30);}).join("");
+    // dealer
+    var showDealer = state.settings.dealer !== false && !won;
+    var dIdx = scorer.rounds.length % 2;
+    $("dealerA").hidden = !(showDealer && dIdx === 0);
+    $("dealerB").hidden = !(showDealer && dIdx === 1);
+
     $("sideA").classList.toggle("lead",a>b&&a>0);$("sideB").classList.toggle("lead",b>a&&b>0);
     $("fillA").style.width=Math.min(100,a/tg*100)+"%";$("fillB").style.width=Math.min(100,b/tg*100)+"%";
     var diff=Math.abs(a-b);
@@ -188,6 +194,9 @@
   }
   function stepper(side,k){return '<div class="stepper" data-side="'+side+'" data-k="'+k+'"><button type="button" data-d="-1">−</button><span class="val">0</span><button type="button" data-d="1">+</button></div>';}
   function pointsBox(side,k){
+    if(state.settings.tallyCards){
+      return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="cards-btn" data-side="'+side+'" data-k="'+k+'">Conta carte</button></div>';
+    }
     var chips=CARDS.map(function(c){return '<div class="chip" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">0</span><button type="button" data-d="1">+</button></div></div>';}).join("");
     return '<div class="with-calc"><input class="numbox" type="number" inputmode="numeric" data-side="'+side+'" data-k="'+k+'" placeholder="0"><button type="button" class="calc-toggle" data-side="'+side+'" data-k="'+k+'" aria-label="Conta carte">🧮</button></div><div class="counter" data-side="'+side+'" data-k="'+k+'">'+chips+'<div class="sum">Totale carte <b>0</b></div></div>';
   }
@@ -195,7 +204,8 @@
   function wireSheet(){
     var body=$("sheetBody");
     body.querySelectorAll(".stepper button").forEach(function(btn){btn.addEventListener("click",function(){var st=btn.parentNode;draft[st.dataset.side][st.dataset.k]=Math.max(0,draft[st.dataset.side][st.dataset.k]+parseInt(btn.dataset.d,10));syncSheet();});});
-    body.querySelectorAll(".numbox").forEach(function(inp){inp.addEventListener("input",function(){var v=parseInt(inp.value,10);if(isNaN(v))v=0;draft[inp.dataset.side][inp.dataset.k]=v;syncSheet(true);});});
+    body.querySelectorAll(".numbox").forEach(function(inp){inp.addEventListener("input",function(){var v=parseInt(inp.value,10);if(isNaN(v))v=0;var sd=inp.dataset.side,kk=inp.dataset.k;draft[sd][kk]=v;if(state.settings.tallyCards)delete draft[sd][kk+"Cards"];syncSheet(true);});});
+    body.querySelectorAll(".cards-btn").forEach(function(btn){btn.addEventListener("click",function(){openCardsPopup(btn.dataset.side,btn.dataset.k);});});
     body.querySelectorAll('.check input').forEach(function(c){c.addEventListener("change",function(){var side=c.dataset.side,k=c.dataset.k;draft[side][k]=c.checked;if(c.checked&&k==="chius")draft[side].pozz=false;if(c.checked&&k==="pozz")draft[side].chius=false;syncSheet();});});
     body.querySelectorAll(".calc-toggle").forEach(function(btn){btn.addEventListener("click",function(){var counter=body.querySelector('.counter[data-side="'+btn.dataset.side+'"][data-k="'+btn.dataset.k+'"]');btn.classList.toggle("active",counter.classList.toggle("open"));});});
     body.querySelectorAll(".counter").forEach(function(counter){var side=counter.dataset.side,k=counter.dataset.k;counter.querySelectorAll(".chip").forEach(function(chip){var cspan=chip.querySelector(".c");chip.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var cur=parseInt(cspan.textContent,10)+parseInt(b.dataset.d,10);if(cur<0)cur=0;cspan.textContent=cur;var sum=0;counter.querySelectorAll(".chip").forEach(function(ch){sum+=parseInt(ch.querySelector(".c").textContent,10)*parseInt(ch.dataset.val,10);});counter.querySelector(".sum b").textContent=sum;draft[side][k]=sum;body.querySelector('.numbox[data-side="'+side+'"][data-k="'+k+'"]').value=sum?sum:"";syncSheet();});});});});
@@ -214,6 +224,25 @@
     buildSheet();openOv("sheet","scrim");
   }
   function saveRound(){var r={a:draft.a,b:draft.b};if(editIndex>=0)scorer.rounds[editIndex]=r;else scorer.rounds.push(r);closeOv("sheet","scrim");renderScorer();toast(editIndex>=0?"Mano aggiornata":"Mano aggiunta");}
+
+  // ===== card-tally popup =====
+  var cardSide=null,cardK=null;
+  function cardsTotalNow(){var sum=0;$("cardsBody").querySelectorAll(".chip").forEach(function(ch){sum+=(parseInt(ch.querySelector(".c").textContent,10)||0)*parseInt(ch.dataset.val,10);});return sum;}
+  function updateCardsTotal(){$("cardsTotal").textContent=fmt(cardsTotalNow());}
+  function buildCardsBody(){
+    var counts=(draft[cardSide]&&draft[cardSide][cardK+"Cards"])||{};
+    var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">'+n+'</span><button type="button" data-d="1">+</button></div></div>';}).join("");
+    $("cardsBody").innerHTML='<div class="cards-list">'+rows+'<div class="sum">Totale <b id="cardsTotal">0</b></div></div>';
+    $("cardsBody").querySelectorAll(".chip").forEach(function(chip){var cspan=chip.querySelector(".c");chip.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){var cur=parseInt(cspan.textContent,10)+parseInt(b.dataset.d,10);if(cur<0)cur=0;cspan.textContent=cur;updateCardsTotal();});});});
+    updateCardsTotal();
+  }
+  function openCardsPopup(side,k){cardSide=side;cardK=k;$("cardsTitle").textContent=(k==="mano"?"Carte in mano":"Carte sul tavolo");buildCardsBody();openOv("cardsSheet","scrim8");}
+  function applyCards(){
+    var counts={},sum=0;
+    $("cardsBody").querySelectorAll(".chip").forEach(function(ch){var n=parseInt(ch.querySelector(".c").textContent,10)||0;counts[ch.dataset.k]=n;sum+=n*parseInt(ch.dataset.val,10);});
+    draft[cardSide][cardK]=sum;draft[cardSide][cardK+"Cards"]=counts;
+    closeOv("cardsSheet","scrim8");syncSheet();
+  }
   function deleteRound(){if(editIndex<0)return;var removed=scorer.rounds.splice(editIndex,1)[0],at=editIndex;closeOv("sheet","scrim");renderScorer();toast("Mano eliminata",function(){scorer.rounds.splice(at,0,removed);renderScorer();});}
 
   // ===== tournaments =====
@@ -454,8 +483,8 @@
     $("rulesPozzTxt").textContent="−"+v.pozz;
   }
 
-  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
-  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();updateRulesUI();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
+  function openSettings(){var s=state.settings;$("setTarget").value=s.target;$("setSemi").checked=s.semipulito;$("setShowTourneys").checked=s.showTourneys!==false;$("setHaptic").checked=s.haptic!==false;$("setDealer").checked=s.dealer!==false;$("setTally").checked=s.tallyCards===true;$("vPulito").value=s.values.pulito;$("vSemi").value=s.values.semi;$("vSporco").value=s.values.sporco;$("vChius").value=s.values.chius;$("vPozz").value=s.values.pozz;openOv("setSheet","scrim2");}
+  function saveSettings(){var s=state.settings;var tg=parseInt($("setTarget").value,10);s.target=isNaN(tg)||tg<100?2005:tg;s.semipulito=$("setSemi").checked;s.showTourneys=$("setShowTourneys").checked;s.haptic=$("setHaptic").checked;s.dealer=$("setDealer").checked;s.tallyCards=$("setTally").checked;function num(id,d){var v=parseInt($(id).value,10);return isNaN(v)?d:v;}s.values={pulito:num("vPulito",200),semi:num("vSemi",150),sporco:num("vSporco",100),chius:num("vChius",100),pozz:num("vPozz",100)};persist();applyTourneysVisibility();updateRulesUI();closeOv("setSheet","scrim2");if(view==="casual-play"||view==="match-play")renderScorer();else if(view==="tourney")renderTourney();else if(view==="casual-setup")renderSetup();}
 
   // ===== backup / restore =====
   function backupName(){var d=new Date();function p(n){return("0"+n).slice(-2);}return "pinella-backup-"+d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+".json";}
@@ -489,7 +518,8 @@
   function openOv(sheet,scrim){$(scrim).classList.add("open");requestAnimationFrame(function(){$(sheet).classList.add("open");});}
   function closeOv(sheet,scrim){$(sheet).classList.remove("open");$(scrim).classList.remove("open");}
   var toastTimer=null;
-  function toast(msg,undo){var t=$("toast");$("toastMsg").textContent=msg;var old=t.querySelector(".undo");if(old)old.remove();if(undo){var u=document.createElement("span");u.className="undo";u.textContent="Annulla";u.addEventListener("click",function(){undo();t.classList.remove("show");});t.appendChild(u);}t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show");},undo?4500:2200);}
+  function vib(){ if(state.settings.haptic!==false && navigator.vibrate) navigator.vibrate(12); }
+  function toast(msg,undo){var t=$("toast");$("toastMsg").textContent=msg;var old=t.querySelector(".undo");if(old)old.remove();if(undo){var u=document.createElement("span");u.className="undo";u.textContent="Annulla";u.addEventListener("click",function(){vib();undo();t.classList.remove("show");});t.appendChild(u);}t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show");},undo?4500:2200);}
 
   // ===== celebration + share =====
   function confetti(){
@@ -501,7 +531,7 @@
     (function frame(){var el=Date.now()-t0;ctx.clearRect(0,0,c.width,c.height);for(var i=0;i<P.length;i++){var p=P[i];p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=el<2200?1:Math.max(0,1-(el-2200)/600);ctx.fillStyle=p.col;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.6);ctx.restore();}if(el<2800)requestAnimationFrame(frame);else c.remove();})();
   }
   function celebrate(){
-    if(navigator.vibrate){try{navigator.vibrate([40,40,90]);}catch(e){}}
+    if(state.settings.haptic!==false && navigator.vibrate){try{navigator.vibrate([40,40,90]);}catch(e){}}
     if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
     confetti();
   }
@@ -517,6 +547,9 @@
   $("openRules2").addEventListener("click",openRules);
   $("rulesClose").addEventListener("click",function(){closeOv("rulesSheet","scrim7");});
   $("scrim7").addEventListener("click",function(){closeOv("rulesSheet","scrim7");});
+  $("cardsDone").addEventListener("click",applyCards);
+  $("cardsClose").addEventListener("click",function(){closeOv("cardsSheet","scrim8");});
+  $("scrim8").addEventListener("click",function(){closeOv("cardsSheet","scrim8");});
   $("playersClose").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
   $("scrim5").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
   $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
@@ -560,7 +593,13 @@
   buildPickers();
   applyTourneysVisibility();
   updateRulesUI();
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7"].forEach(function(s){$(s).classList.remove("open");});}});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet","cardsSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7","scrim8"].forEach(function(s){$(s).classList.remove("open");});}});
+
+  document.addEventListener("click", function(e) {
+    if (e.target.closest("button, .clk, .dock-btn, .pchip, .person, .tcard, .match, .sym, .col, .calc-toggle, .check input, .switch input, select, .close-x, .hg-rm, .rm, .undo")) {
+      vib();
+    }
+  });
 
   goPartita();
 

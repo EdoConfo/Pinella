@@ -44,7 +44,8 @@
   .side .avs{display:flex;margin-bottom:2px}
   .side .avs .av{width:30px;height:30px;font-size:13px;border:2px solid var(--feltro-deep)}
   .side .avs .av+.av{margin-left:-9px}
-  .side .name{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .side .name{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:flex;align-items:center;justify-content:center;gap:6px}
+  .dealer-badge{font-size:1.05rem;line-height:1;margin-top:-2px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5))}
   .side.lead .name{color:var(--oro-soft)}
   .side .total{font-family:'Fraunces',serif;font-weight:600;font-size:3rem;line-height:.95;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
   .side.lead .total{color:var(--oro-soft)}
@@ -168,6 +169,14 @@
   /* rules sheet stacks above settings */
   #scrim7{z-index:75}
   #rulesSheet{z-index:80}
+  /* card-tally popup stacks above the round sheet */
+  #scrim8{z-index:85}
+  #cardsSheet{z-index:88}
+  .cards-btn{flex:none;border:1px solid rgba(28,27,25,.14);background:#fff;border-radius:10px;cursor:pointer;font-family:'Hanken Grotesk';font-weight:700;font-size:.82rem;color:var(--ink);padding:0 14px;white-space:nowrap}
+  .cards-list{display:flex;flex-direction:column;gap:8px}
+  .cards-list .chip .ctrl button{width:32px;height:32px;font-size:1.1rem}
+  .cards-list .sum{display:flex;justify-content:space-between;align-items:center;padding:6px 6px 0;font-size:.86rem;font-weight:700}
+  .cards-list .sum b{font-family:'Fraunces',serif;font-size:1.25rem}
   .rules{padding:2px 2px 8px;color:rgba(28,27,25,.8);font-size:.9rem;line-height:1.6}
   .rules h4{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--ink);font-weight:600;margin:14px 0 4px}
   .rules h4:first-child{margin-top:0}
