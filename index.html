@@ -15,12 +15,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=20">
+<link rel="stylesheet" href="assets/styles.css?v=21">
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand"><span class="suit">&#9824;</span><div><h1>Pinella</h1><div class="tag">Segnapunti</div></div></div>
+    <button class="icon-btn" id="openRules" aria-label="Come si gioca a Burraco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.3 2-2.3 3.3"/><path d="M12 17.5h.01"/></svg></button>
   </header>
 
   <div class="navbar" id="matchNav" hidden>
@@ -145,7 +146,9 @@
   <div class="sheet-head"><h3>Impostazioni</h3><button class="close-x" id="setClose">&times;</button></div>
   <div class="sheet-body">
     <div class="set-group">
-      <h2 class="sec" style="color:rgba(28,27,25,.5)">Regole di gioco</h2>
+      <h2 class="sec" style="color:rgba(28,27,25,.5)">Guida</h2>
+      <button class="data-btn" id="openRules2" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px">Come si gioca a Burraco<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex:none"><path d="M9 18l6-6-6-6"/></svg></button>
+      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Punteggio</h2>
       <div class="set-row"><label>Punteggio predefinito</label><input class="txtbox" id="setTarget" type="number" inputmode="numeric" min="100" step="5"><span class="ref" style="padding:2px 2px 0">Si può cambiare a inizio di ogni partita.</span></div>
       <div class="toggle-row"><div class="t-txt">Burraco semipulito<small>Bonus intermedio da 150 punti</small></div><label class="switch"><input type="checkbox" id="setSemi"><span class="sl"></span></label></div>
       <details class="adv"><summary>Valori bonus (varianti regionali)</summary>
@@ -161,6 +164,45 @@
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
+</div>
+
+<!-- Rules / how-to-play sheet -->
+<div class="scrim" id="scrim7"></div>
+<div class="sheet" id="rulesSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3>Come si gioca a Burraco</h3><button class="close-x" id="rulesClose">&times;</button></div>
+  <div class="sheet-body">
+    <div class="rules">
+      <h4>Materiale e giocatori</h4>
+      <p>Due mazzi di carte francesi compresi i jolly (108 carte in tutto). Si gioca in <b>2</b> (uno contro uno) o in <b>4</b> a coppie. Le <b>matte</b> &mdash; i jolly e i 2 (pinelle) &mdash; sostituiscono qualsiasi carta.</p>
+      <h4>Scopo</h4>
+      <p>Si gioca a più mani: vince chi raggiunge per primo il <b>punteggio prefissato</b> (di solito 2005), sommando i punti di ogni mano.</p>
+      <h4>Preparazione</h4>
+      <p>Ogni giocatore riceve <b>11 carte</b>. Si mettono da parte <b>due pozzetti</b> da 11 carte. Le carte restanti formano il <b>tallone</b> da cui pescare; una carta scoperta avvia la pila degli scarti.</p>
+      <h4>Il turno</h4>
+      <p><b>1)</b> Peschi una carta dal tallone <i>oppure</i> prendi tutta la pila degli scarti. <b>2)</b> Puoi <b>calare</b> nuove combinazioni o aggiungere carte a quelle già in tavola. <b>3)</b> <b>Scarti</b> una carta per chiudere il turno.</p>
+      <h4>Le combinazioni</h4>
+      <ul>
+        <li><b>Scale</b>: 3+ carte dello stesso seme in sequenza (es. 5-6-7 di cuori).</li>
+        <li><b>Gruppi</b>: 3+ carte dello stesso valore.</li>
+      </ul>
+      <p>Una matta può rimpiazzare una carta mancante (una sola per combinazione).</p>
+      <h4>Il burraco</h4>
+      <p>Una combinazione di <b>7 o più carte</b>. È <b>pulito</b> se non contiene matte, <b>sporco</b> se ne contiene una. Il <b>semipulito</b> è una variante facoltativa.</p>
+      <h4>Il pozzetto</h4>
+      <p>Quando finisci le carte in mano per la prima volta, prendi un <b>pozzetto</b> e continui a giocare con quelle 11 carte.</p>
+      <h4>La chiusura</h4>
+      <p>Per <b>chiudere</b> la mano devi aver completato almeno un <b>burraco</b> e <b>preso il pozzetto</b>: cali tutte le carte e scarti l'ultima. Chi chiude prende il bonus; chi non ha preso il pozzetto subisce una penalità.</p>
+      <h4>Il punteggio</h4>
+      <p>A fine mano si sommano i bonus e i valori delle carte <b>calate</b> (positivi) e si sottraggono quelle rimaste <b>in mano</b> (negativi).</p>
+      <ul>
+        <li>Burraco pulito <b>+200</b> · semipulito <b>+150</b> · sporco <b>+100</b></li>
+        <li>Chiusura <b>+100</b> · pozzetto non preso <b>−100</b></li>
+        <li>Jolly 30 · Pinella (2) 20 · Asso 15 · dall'8 al K = 10 · dal 3 al 7 = 5</li>
+      </ul>
+      <div class="ref" style="padding-top:6px">Le regole hanno varianti regionali. I valori dei bonus sono modificabili in Impostazioni.</div>
+    </div>
+  </div>
 </div>
 
 <!-- Players sheet -->
@@ -204,6 +246,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=20"></script>
+<script src="assets/js/main.js?v=21"></script>
 </body>
 </html>

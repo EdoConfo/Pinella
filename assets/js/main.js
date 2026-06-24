@@ -500,6 +500,11 @@
   $("dockStorico").addEventListener("click",function(){nav("history");});
   $("dockGiocatori").addEventListener("click",openPlayers);
   $("dockImpostazioni").addEventListener("click",openSettings);
+  function openRules(){openOv("rulesSheet","scrim7");}
+  $("openRules").addEventListener("click",openRules);
+  $("openRules2").addEventListener("click",openRules);
+  $("rulesClose").addEventListener("click",function(){closeOv("rulesSheet","scrim7");});
+  $("scrim7").addEventListener("click",function(){closeOv("rulesSheet","scrim7");});
   $("playersClose").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
   $("scrim5").addEventListener("click",function(){closeOv("playersSheet","scrim5");});
   $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
@@ -542,7 +547,7 @@
   $("tNewPerson").addEventListener("keydown",function(e){if(e.key==="Enter"){$("tAddPerson").click();}});
   buildPickers();
   applyTourneysVisibility();
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5"].forEach(function(s){$(s).classList.remove("open");});}});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){["sheet","setSheet","tSheet","pSheet","playersSheet","rulesSheet"].forEach(function(s){$(s).classList.remove("open");});["scrim","scrim2","scrim3","scrim4","scrim5","scrim7"].forEach(function(s){$(s).classList.remove("open");});}});
 
   goPartita();
 
