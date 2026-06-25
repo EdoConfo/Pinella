@@ -19,6 +19,7 @@
   // defensive defaults + migrations
   state.players=(state.players||[]).map(function(p){ if(!("avatar" in p))p.avatar=null; return p; });
   state.settings=Object.assign({},DEF.settings,state.settings||{});
+  state.settings.haptic = false;
   state.settings.values=Object.assign({},DEF.settings.values,state.settings.values||{});
   if(!state.casual){
     // migrate old quick game if present
@@ -102,7 +103,8 @@
   function membersOf(t){var res=[];allEntries().forEach(function(p){if(assign[p.id]===t)res.push({id:p.id,name:p.name});});return res;}
   function teamCap(){return state.settings.bigTeams?3:2;}
   function pchipHTML(p){var a=assign[p.id]||"",badge=a?'<span class="badge '+a+'">'+a+'</span>':"";return '<div class="pchip'+(a?(" sel "+a):"")+'" data-id="'+p.id+'">'+avatarHTML(p,46)+badge+'<span class="nm">'+esc(p.name)+'</span></div>';}
-  function wirePchips(container){container.querySelectorAll(".pchip").forEach(function(el){el.addEventListener("click",function(){cycle(el.dataset.id);});});}
+  function wirePchips(container){container.querySelectorAll(".pchip[data-id]").forEach(function(el){el.addEventListener("click",function(){cycle(el.dataset.id);});});}
+  function moreChipHTML(label){return '<div class="pchip more" id="moreChip"><span class="av av-more"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span><span class="nm">'+label+'</span></div>';}
   function playerLastTs(){
     var m={};function bump(id,ts){if(id&&(!(id in m)||ts>m[id]))m[id]=ts;}
     (state.history||[]).forEach(function(g){[0,1].forEach(function(si){((g.teams[si]||{}).members||[]).forEach(function(x){bump(x.id,g.ts||0);});});});
@@ -129,7 +131,12 @@
     if($("capMax"))$("capMax").textContent=teamCap();
     var grid=$("setupGrid");
     if(state.players.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Tocca <b>+ Aggiungi giocatore</b> per crearne uno.</div>'; }
-    else{ grid.innerHTML=recentPlayers(15).map(pchipHTML).join(""); wirePchips(grid); }
+    else{ 
+      grid.innerHTML=recentPlayers(14).map(pchipHTML).join("") + moreChipHTML("Altro"); 
+      wirePchips(grid); 
+      var mc = grid.querySelector("#moreChip");
+      if(mc) mc.addEventListener("click", function(){ openPlayers("pick"); });
+    }
     var ma=membersOf("A"),mb=membersOf("B");
     $("previewA").textContent=ma.length?ma.map(function(m){return m.name;}).join(" & "):"—";
     $("previewB").textContent=mb.length?mb.map(function(m){return m.name;}).join(" & "):"—";
