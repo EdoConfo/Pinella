@@ -40,6 +40,8 @@
   function getPlayer(id){return state.players.find(function(x){return x.id===id;});}
   function playerName(id){var p=getPlayer(id);return p?p.name:"?";}
   function coupleLabel(c){return playerName(c.p1)+" & "+playerName(c.p2);}
+  function firstName(n){return String(n||"").trim().split(/\s+/)[0]||String(n||"");}
+  function boardLabel(arr){if(!arr||!arr.length)return "";return arr.map(function(m){return firstName(m.name);}).join(" & ");}
   function colorFor(id){var h=0,s=String(id);for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return COLORS[h%COLORS.length];}
   function avatarHTML(p,size,cls){
     size=size||40;var extra=cls?(" "+cls):"";
@@ -237,7 +239,7 @@
   function renderScorer(){
     var t=totals(scorer.rounds),a=t[0],b=t[1],tg=scorer.target;
     var won=(a>=tg||b>=tg)&&a!==b;
-    $("nameA").textContent=scorer.names[0];$("nameB").textContent=scorer.names[1];
+    $("nameA").textContent=boardLabel(scorer.members&&scorer.members[0])||scorer.names[0];$("nameB").textContent=boardLabel(scorer.members&&scorer.members[1])||scorer.names[1];
     $("totalA").textContent=fmt(a);$("totalB").textContent=fmt(b);$("targetLabel").textContent=fmt(tg);
     // dealer (rotates one seat per hand; tap the bar to set who deals)
     var cd=(state.settings.dealer!==false && !won)?currentDealer():null;
