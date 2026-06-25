@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=31">
+<link rel="stylesheet" href="assets/styles.css?v=32">
 </head>
 <body>
 <div class="wrap">
@@ -177,7 +177,7 @@
   <div class="grabber"></div>
   <div class="sheet-head"><h3>Tavolo</h3><button class="close-x" id="tableClose">&times;</button></div>
   <div class="sheet-body">
-    <p class="ref" style="text-align:center;padding-top:0">Tocca un giocatore per renderlo <b>mazziere</b> 🃏 · trascinalo su un altro per scambiare i posti.</p>
+    <p class="ref" style="text-align:center;padding-top:0">Tocca un giocatore per renderlo <b>mazziere</b> 🃏 · trascinalo su un <b>compagno di squadra</b> per scambiare i posti.</p>
     <div class="table-area" id="tableArea"></div>
   </div>
 </div>
@@ -247,9 +247,14 @@
 <div class="scrim" id="scrim5"></div>
 <div class="sheet" id="playersSheet" role="dialog" aria-modal="true">
   <div class="grabber"></div>
-  <div class="sheet-head"><h3>Giocatori</h3><button class="close-x" id="playersClose">&times;</button></div>
+  <div class="sheet-head"><h3 id="playersTitle">Giocatori</h3><button class="close-x" id="playersClose">&times;</button></div>
   <div class="sheet-body">
     <div class="set-group">
+      <div id="playersPickWrap" hidden>
+        <p class="ref" style="padding-top:0">Tocca un giocatore per assegnarlo: <b>1° tocco → Squadra A</b>, 2° → Squadra B, 3° lo togli.</p>
+        <div class="pgrid" id="playersPick"></div>
+        <div class="ref" id="playersPickPrev" style="padding-top:8px"></div>
+      </div>
       <div class="roster" id="rosterList2"></div>
       <button class="ghost-add" id="openAddPerson2" style="border-color:rgba(28,27,25,.18);color:var(--ink)">+ Aggiungi giocatore</button>
     </div>
@@ -284,6 +289,6 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=31"></script>
+<script src="assets/js/main.js?v=32"></script>
 </body>
 </html>

@@ -99,26 +99,35 @@
   function allEntries(){return state.players;}
   function membersOf(t){var res=[];allEntries().forEach(function(p){if(assign[p.id]===t)res.push({id:p.id,name:p.name});});return res;}
   function teamCap(){return state.settings.bigTeams?3:2;}
+  function pchipHTML(p){var a=assign[p.id]||"",badge=a?'<span class="badge '+a+'">'+a+'</span>':"";return '<div class="pchip'+(a?(" sel "+a):"")+'" data-id="'+p.id+'">'+avatarHTML(p,46)+badge+'<span class="nm">'+esc(p.name)+'</span></div>';}
+  function wirePchips(container){container.querySelectorAll(".pchip").forEach(function(el){el.addEventListener("click",function(){cycle(el.dataset.id);});});}
+  function playerLastTs(){
+    var m={};function bump(id,ts){if(id&&(!(id in m)||ts>m[id]))m[id]=ts;}
+    (state.history||[]).forEach(function(g){[0,1].forEach(function(si){((g.teams[si]||{}).members||[]).forEach(function(x){bump(x.id,g.ts||0);});});});
+    (state.tournaments||[]).forEach(function(t){t.matches.forEach(function(mt){if(!mt.finished)return;var ca=t.couples[mt.ci],cb=t.couples[mt.cj];[ca.p1,ca.p2,cb.p1,cb.p2].forEach(function(id){bump(id,t.createdAt||0);});});});
+    return m;
+  }
+  function recentPlayers(limit){
+    limit=limit||15;var ts=playerLastTs(),played=state.players.filter(function(p){return ts[p.id]>0;});
+    played.sort(function(a,b){return (ts[b.id]||0)-(ts[a.id]||0);});
+    var list=(played.length?played:state.players.slice()).slice(0,limit);
+    state.players.forEach(function(p){if(assign[p.id]&&list.indexOf(p)<0)list.push(p);});
+    return list;
+  }
+  function refreshAssign(){if(view==="casual-setup")renderSetup();if(playersMode==="pick"&&$("playersSheet").classList.contains("open"))renderPickGrid();}
   function cycle(id){
     var cap=teamCap(),cur=assign[id]||null;
     if(cur===null){ if(countTeam("A")<cap)assign[id]="A"; else if(countTeam("B")<cap)assign[id]="B"; }
     else if(cur==="A"){ if(countTeam("B")<cap)assign[id]="B"; else delete assign[id]; }
     else { delete assign[id]; }
-    renderSetup();
+    refreshAssign();
   }
   function renderSetup(){
     $("setupTarget").value=state.casual.target||state.settings.target;
     if($("capMax"))$("capMax").textContent=teamCap();
-    var grid=$("setupGrid"),entries=allEntries();
-    if(entries.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Tocca <b>+ Aggiungi giocatore</b> per crearne uno.</div>'; }
-    else{
-      grid.innerHTML=entries.map(function(p){
-        var a=assign[p.id]||"";
-        var badge=a?'<span class="badge '+a+'">'+a+'</span>':"";
-        return '<div class="pchip'+(a?(" sel "+a):"")+'" data-id="'+p.id+'">'+avatarHTML(p,48)+badge+'<span class="nm">'+esc(p.name)+'</span></div>';
-      }).join("");
-      grid.querySelectorAll(".pchip").forEach(function(el){el.addEventListener("click",function(){cycle(el.dataset.id);});});
-    }
+    var grid=$("setupGrid");
+    if(state.players.length===0){ grid.innerHTML='<div class="ref" style="color:var(--muted)">Nessun giocatore salvato. Tocca <b>+ Aggiungi giocatore</b> per crearne uno.</div>'; }
+    else{ grid.innerHTML=recentPlayers(15).map(pchipHTML).join(""); wirePchips(grid); }
     var ma=membersOf("A"),mb=membersOf("B");
     $("previewA").textContent=ma.length?ma.map(function(m){return m.name;}).join(" & "):"—";
     $("previewB").textContent=mb.length?mb.map(function(m){return m.name;}).join(" & "):"—";
@@ -187,7 +196,7 @@
     var html='<div class="table-felt"><span>Giro di gioco</span></div>';
     seats.forEach(function(s,i){
       var ang=-Math.PI/2+i*2*Math.PI/N,x=cx+rx*Math.cos(ang),y=cy+ry*Math.sin(ang),isD=(i===dIdx);
-      html+='<div class="seat s'+(s.side)+(isD?" dealer":"")+'" data-key="'+s.key+'" style="left:'+Math.round(x)+'px;top:'+Math.round(y)+'px">'+(isD?'<span class="seat-d">🃏</span>':'')+memberAvatar(s.m,46)+'<span class="snm">'+esc(s.m.name)+'</span></div>';
+      html+='<div class="seat s'+(s.side)+(isD?" dealer":"")+'" data-key="'+s.key+'" data-side="'+s.side+'" style="left:'+Math.round(x)+'px;top:'+Math.round(y)+'px">'+(isD?'<span class="seat-d">🃏</span>':'')+memberAvatar(s.m,46)+'<span class="snm">'+esc(s.m.name)+'</span></div>';
     });
     wrap.innerHTML=html;
     wireTable(wrap);
@@ -217,8 +226,8 @@
       el.addEventListener("pointerup",function(e){if(pid===null)return;pid=null;el.classList.remove("grab");
         if(!moved){tableSetDealer(el.dataset.key);return;}
         var r=wrap.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top,best=null,bd=1e9;
-        wrap.querySelectorAll(".seat").forEach(function(o){if(o===el)return;var ox=parseFloat(o.style.left),oy=parseFloat(o.style.top),d=(ox-px)*(ox-px)+(oy-py)*(oy-py);if(d<bd){bd=d;best=o;}});
-        if(best&&bd<6400)tableSwap(el.dataset.key,best.dataset.key);else renderTable();
+        wrap.querySelectorAll(".seat").forEach(function(o){if(o===el||o.dataset.side!==el.dataset.side)return;var ox=parseFloat(o.style.left),oy=parseFloat(o.style.top),d=(ox-px)*(ox-px)+(oy-py)*(oy-py);if(d<bd){bd=d;best=o;}});
+        if(best&&bd<6400)tableSwap(el.dataset.key,best.dataset.key);else{renderTable();toast("Puoi scambiare solo due compagni di squadra");}
       });
       el.addEventListener("pointercancel",function(){pid=null;moved=false;renderTable();});
     });
@@ -443,7 +452,7 @@
     var rows=state.players.map(function(p){var s=stats[p.id]||{games:0,wins:0,pf:0,pa:0};return {p:p,games:s.games,wins:s.wins,pct:s.games?Math.round(s.wins/s.games*100):0,pf:s.pf};}).filter(function(r){return r.games>0;});
     rows.sort(function(a,b){return b.wins-a.wins||b.pct-a.pct||b.games-a.games||b.pf-a.pf;});
     if(rows.length===0){area.innerHTML='<div class="empty"><span class="big">Classifica vuota</span>Nessun giocatore ha ancora giocato una partita.</div>';}
-    else{area.innerHTML='<table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+r.pct+'%</td></tr>';}).join("")+'</tbody></table>';}
+    else{var top=rows.slice(0,5);area.innerHTML='<div style="font-size:.76rem;color:var(--muted);padding:0 2px 9px;line-height:1.5">Prime 5 per <b style="color:var(--txt)">vittorie</b> (V) · G = partite · % = vinte su giocate.</div><table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+top.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+r.pct+'%</td></tr>';}).join("")+'</tbody></table>';}
     var list=$("historyListArea"),games=(state.history||[]).slice().reverse();
     if(games.length===0){list.innerHTML='<div class="empty"><span class="big">Ancora nessuna partita</span>Le partite casual concluse compariranno qui quando inizi una nuova partita.</div>';return;}
     list.innerHTML=games.map(function(g){
@@ -541,7 +550,22 @@
       list.querySelectorAll(".person").forEach(function(el){el.addEventListener("click",function(){openPlayer(el.dataset.id);});});
     });
   }
-  function openPlayers(){renderRoster();openOv("playersSheet","scrim5");}
+  var playersMode="manage";
+  function openPlayers(mode){
+    playersMode=(mode==="pick")?"pick":"manage";
+    var pick=playersMode==="pick";
+    show("playersPickWrap",pick);show("rosterList2",!pick);
+    $("playersTitle").textContent=pick?"Scegli i giocatori":"Giocatori";
+    if(pick)renderPickGrid();else renderRoster();
+    openOv("playersSheet","scrim5");
+  }
+  function renderPickGrid(){
+    var g=$("playersPick");
+    if(state.players.length===0){g.innerHTML='<div class="ref" style="text-align:center;color:rgba(28,27,25,.6)">Nessun giocatore. Crealo qui sotto.</div>';}
+    else{g.innerHTML=state.players.map(pchipHTML).join("");wirePchips(g);}
+    var ma=membersOf("A"),mb=membersOf("B");
+    $("playersPickPrev").innerHTML='<b>A:</b> '+(ma.length?esc(ma.map(function(m){return m.name;}).join(" & ")):"—")+' &nbsp;·&nbsp; <b>B:</b> '+(mb.length?esc(mb.map(function(m){return m.name;}).join(" & ")):"—");
+  }
   var editingPlayerId=null,draftAvatar={symbol:null,color:null,photo:null};
   function renderAvatarPicker(){
     var fake={id:editingPlayerId||"new",name:$("pName").value||"?",avatar:{symbol:draftAvatar.symbol,color:draftAvatar.color,photo:draftAvatar.photo}};
@@ -571,8 +595,7 @@
     var avatar=(draftAvatar.symbol||draftAvatar.color||draftAvatar.photo)?{symbol:draftAvatar.symbol||null,color:draftAvatar.color||null,photo:draftAvatar.photo||null}:null;
     if(editingPlayerId){var p=getPlayer(editingPlayerId);if(p){p.name=name.slice(0,22);p.avatar=avatar;}}
     else state.players.push({id:uid(),name:name.slice(0,22),avatar:avatar});
-    persist();closeOv("pSheet","scrim4");renderRoster();
-    if(view==="casual-setup")renderSetup();
+    persist();closeOv("pSheet","scrim4");renderRoster();refreshAssign();
   }
   function deletePlayer(){
     if(!editingPlayerId)return;
@@ -674,7 +697,7 @@
   $("openAddPerson2").addEventListener("click",function(){openPlayer(null);});
   $("startCasual").addEventListener("click",startCasual);
   $("newCasual").addEventListener("click",newCasual);
-  $("addGuest").addEventListener("click",function(){openPlayers();});
+  $("addGuest").addEventListener("click",function(){openPlayers("pick");});
   $("setupTarget").addEventListener("change",function(){var v=parseInt($("setupTarget").value,10);if(!isNaN(v)&&v>=100)state.casual.target=v;});
   $("btnAdd").addEventListener("click",function(){openSheet();});
   $("dealerBar").addEventListener("click",openTable);
