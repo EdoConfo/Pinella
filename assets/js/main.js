@@ -1031,6 +1031,12 @@
   $("scrim2").addEventListener("click",saveSettings);
   $("saveSettings").addEventListener("click",saveSettings);
   $("exportData").addEventListener("click",exportData);
+  $("btnNukeData").addEventListener("click", function() {
+    if(confirm("Sei sicuro di voler eliminare TUTTI i dati?\nL'operazione è irreversibile e perderai giocatori, partite, tornei e impostazioni.")) {
+      localStorage.removeItem("pinellaState");
+      location.reload();
+    }
+  });
   $("importData").addEventListener("click",function(){$("importFile").click();});
   $("importFile").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(f)importData(f);e.target.value="";});
   $("importClose").addEventListener("click",function(){closeOv("importSheet","scrimImport");});
