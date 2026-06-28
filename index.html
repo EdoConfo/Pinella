@@ -15,36 +15,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=33">
+<link rel="stylesheet" href="assets/styles.css?v=50">
+<script src="assets/js/main.js?v=86" defer></script>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand"><span class="suit">&#9824;</span><div><h1>Pinella</h1><div class="tag">Segnapunti</div></div></div>
-    <button class="icon-btn" id="openRules" aria-label="Come si gioca a Burraco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.3 2-2.3 3.3"/><path d="M12 17.5h.01"/></svg></button>
+    <div style="display:flex;gap:4px">
+      <button class="icon-btn" id="openCreditsHome" aria-label="Crediti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></button>
+      <button class="icon-btn" id="openRules" aria-label="Come si gioca a Burraco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.3 2-2.3 3.3"/><path d="M12 17.5h.01"/></svg></button>
+    </div>
   </header>
 
-  <div class="navbar" id="matchNav" hidden>
-    <button class="back" id="matchBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Torneo</button>
-    <div class="ctx"><small>Incontro</small><span id="matchTitle"></span></div>
-  </div>
-  <div class="navbar" id="casualBar" hidden>
-    <div class="ctx"><small>Partita casuale</small><span id="casualTitle"></span></div>
-    <button class="restart" id="endCasual" hidden>Termina partita</button>
-    <button class="restart" id="newCasual">↻ Nuova partita</button>
-  </div>
 
   <!-- CASUAL SETUP -->
   <section id="viewCasualSetup" hidden>
     <div class="setup-card">
       <h2 class="sec" style="margin-bottom:6px">Chi gioca?</h2>
-      <p class="ref" style="color:var(--muted);padding:0 0 4px">Tocca un avatar per assegnarlo: <b style="color:var(--oro-soft)">1° tocco → Squadra A</b>, 2° tocco → Squadra B, 3° lo togli. Max <span id="capMax">2</span> per squadra.</p>
+      <p class="ref" id="setupAssignHint" style="color:var(--muted);padding:0 0 4px">Tocca un avatar per assegnarlo: <b style="color:var(--oro-soft)">A</b> &rarr; <b style="color:#9FD3C0">B</b> &rarr; <b style="color:#3B6FC0">C</b> &rarr; Rimuovi. Max <span id="capMax">2</span> per squadra.</p>
       <div class="pgrid" id="setupGrid"></div>
       <div class="guest-add"><button class="ghost-add" id="addGuest">+ Aggiungi giocatore</button></div>
       <div class="matchup">
-        <div class="t"><small>Squadra A</small><span id="previewA">—</span></div>
+        <div class="t"><small>Squadra A</small><div id="previewA"><span class="t-name">—</span></div></div>
         <div class="vs">VS</div>
-        <div class="t"><small>Squadra B</small><span id="previewB">—</span></div>
+        <div class="t"><small>Squadra B</small><div id="previewB"><span class="t-name">—</span></div></div>
+        <div class="vs" id="vsC" style="display:none">VS</div>
+        <div class="t" id="teamC" style="display:none"><small>Squadra C</small><div id="previewC"><span class="t-name">—</span></div></div>
       </div>
       <div class="target-set"><label>Si arriva a</label><input type="number" id="setupTarget" inputmode="numeric" min="100" step="5"></div>
     </div>
@@ -53,18 +50,27 @@
 
   <!-- SCORER -->
   <section id="viewScorer" hidden>
+    <div class="navbar" style="margin-bottom:12px" id="scorerNavbar">
+      <button class="back" id="scorerBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span id="scorerBackLabel">Storico</span></button>
+      <div class="ctx"><span id="scorerCtxTitle" style="display:block">Partita libera</span><small id="scorerCtxSub">Partita</small></div>
+      <div style="display:flex;gap:4px">
+        <button class="icon-btn" id="btnScorerDelete" style="color:#f87171;border-color:rgba(248,113,113,0.3)" aria-label="Elimina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+      </div>
+    </div>
+    <div class="winner" id="winner" style="margin-bottom:18px"><div class="cup">&#127942;</div><div class="txt"><b id="winnerName"></b><span id="winnerSub"></span></div></div>
     <div class="board">
       <div class="board-grid">
-        <div class="side" id="sideA"><div class="avs" id="avsA"></div><div class="name"><span id="nameA">NOI</span><span class="dealer-badge" id="dealerA" hidden>🃏</span></div><div class="total" id="totalA">0</div><div class="meta" id="metaA"></div><div class="track"><div class="fill" id="fillA"></div></div></div>
+        <div class="side" id="sideA"><div class="side-head"><div class="avs" id="avsA"></div><span class="dealer-badge" id="dealerA" hidden>🃏</span></div><div class="name"><span id="nameA">NOI</span></div><div class="total" id="totalA">0</div><div class="meta" id="metaA"></div><div class="track"><div class="fill" id="fillA"></div></div></div>
         <div class="divider"></div>
-        <div class="side" id="sideB"><div class="avs" id="avsB"></div><div class="name"><span id="nameB">LORO</span><span class="dealer-badge" id="dealerB" hidden>🃏</span></div><div class="total" id="totalB">0</div><div class="meta" id="metaB"></div><div class="track"><div class="fill" id="fillB"></div></div></div>
+        <div class="side" id="sideB"><div class="side-head"><div class="avs" id="avsB"></div><span class="dealer-badge" id="dealerB" hidden>🃏</span></div><div class="name"><span id="nameB">LORO</span></div><div class="total" id="totalB">0</div><div class="meta" id="metaB"></div><div class="track"><div class="fill" id="fillB"></div></div></div>
+        <div class="divider" id="divC" style="display:none"></div>
+        <div class="side" id="sideC" style="display:none"><div class="side-head"><div class="avs" id="avsC"></div><span class="dealer-badge" id="dealerC" hidden>🃏</span></div><div class="name"><span id="nameC">C</span></div><div class="total" id="totalC">0</div><div class="meta" id="metaC"></div><div class="track"><div class="fill" id="fillC"></div></div></div>
       </div>
       <div class="target-row">Corsa a <b id="targetLabel">2005</b> punti</div>
     </div>
     <div class="dealer-bar" id="dealerBar" hidden></div>
-    <div class="winner" id="winner" style="margin-top:18px"><div class="cup">&#127942;</div><div class="txt"><b id="winnerName"></b><span id="winnerSub"></span></div></div>
     <button class="add-btn" id="btnAdd" style="margin-top:18px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuova mano</button>
-    <button class="add-btn gold" id="btnFinish" hidden style="margin-top:10px">Termina partita</button>
+    <button class="add-btn gold" id="btnAlleanza" style="margin-top:10px; display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>Alleanza (2 vs 1)</button>
     <section style="margin-top:18px"><h2 class="sec">Mani giocate</h2><div id="histArea"></div></section>
   </section>
 
@@ -76,11 +82,17 @@
 
   <!-- TOURNAMENT DETAIL -->
   <section id="viewTourney" hidden>
-    <div class="navbar" style="margin-bottom:4px"><button class="back" id="tourneyBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Tornei</button><div class="ctx"><small>Torneo</small><span id="tourneyTitle"></span></div></div>
+    <div class="navbar" style="margin-bottom:12px">
+      <button class="back" id="tourneyBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Tornei</button>
+      <div class="ctx"><span id="tourneyTitle" style="display:block"></span><small id="tourneySub">Torneo</small></div>
+      <div style="display:flex;gap:4px">
+        <button class="icon-btn" id="tRename" aria-label="Rinomina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+        <button class="icon-btn" id="tDelete" style="color:#f87171;border-color:rgba(248,113,113,0.3)" aria-label="Elimina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+      </div>
+    </div>
     <div id="tourneyWinner"></div>
     <h2 class="sec">Classifica</h2><div id="standingsArea"></div>
     <h2 class="sec" style="margin-top:20px">Calendario</h2><div id="calendarArea"></div>
-    <div class="tourney-actions"><button id="tRename">Rinomina</button><button id="tDelete">Elimina torneo</button></div>
   </section>
 
   <!-- HISTORY + STATS -->
@@ -90,19 +102,13 @@
   </section>
 
   <!-- GAME DETAIL -->
-  <section id="viewGameDetail" hidden>
-    <div class="navbar" style="margin-bottom:4px"><button class="back" id="gameBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Storico</button><div class="ctx"><small>Partita</small><span id="gameDetailTitle"></span></div></div>
-    <div id="gameDetailArea"></div>
-  </section>
-
-  <footer id="footNote">Tutto salvato su questo dispositivo</footer>
 </div>
 
 <nav class="dock">
   <div class="dock-bar">
     <button type="button" class="dock-btn" id="dockPartite" data-dock="partite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.4"/><path d="M12 9v6"/><circle cx="7.5" cy="12" r="1.05"/><circle cx="16.5" cy="12" r="1.05"/></svg><span>Partita</span></button>
-    <button type="button" class="dock-btn" id="dockTornei" data-dock="tornei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5v1.5a3 3 0 0 0 3 3M17 6h2.5v1.5a3 3 0 0 1-3 3"/></svg><span>Tornei</span></button>
     <button type="button" class="dock-btn" id="dockStorico" data-dock="storico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l3 2"/></svg><span>Storico</span></button>
+    <button type="button" class="dock-btn" id="dockTornei" data-dock="tornei"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5v1.5a3 3 0 0 0 3 3M17 6h2.5v1.5a3 3 0 0 1-3 3"/></svg><span>Tornei</span></button>
     <button type="button" class="dock-btn" id="dockGiocatori" data-dock="giocatori"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><path d="M16 5.6a3 3 0 0 1 0 4.8"/><path d="M16.8 14.2a5.5 5.5 0 0 1 3.7 5.3"/></svg><span>Giocatori</span></button>
     <button type="button" class="dock-btn" id="dockImpostazioni" data-dock="impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Impostazioni</span></button>
   </div>
@@ -140,6 +146,7 @@
   <div class="sheet-foot"><button class="btn btn-ghost" id="pDelete" style="display:none">Elimina</button><button class="btn btn-primary" id="pSave">Salva</button></div>
 </div>
 
+
 <!-- Settings sheet -->
 <div class="scrim" id="scrim2"></div>
 <div class="sheet" id="setSheet" role="dialog" aria-modal="true">
@@ -147,9 +154,9 @@
   <div class="sheet-head"><h3>Impostazioni</h3><button class="close-x" id="setClose">&times;</button></div>
   <div class="sheet-body">
     <div class="set-group">
-      <h2 class="sec" style="color:rgba(28,27,25,.5)">Guida</h2>
+      <h2 class="sec">Guida</h2>
       <button class="rules-link" id="openRules2"><svg class="bk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 4v16H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M19 16H7a2 2 0 0 0-2 2"/><path d="M9 8h6"/></svg><span>Come si gioca a Burraco</span><svg class="ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Punteggio</h2>
+      <h2 class="sec">Punteggio</h2>
       <div class="set-row"><label>Punteggio predefinito</label><input class="txtbox" id="setTarget" type="number" inputmode="numeric" min="100" step="5"><span class="ref" style="padding:2px 2px 0">Si può cambiare a inizio di ogni partita.</span></div>
       <div class="toggle-row"><div class="t-txt">Burraco semipulito<small id="semiHint">Bonus intermedio da 150 punti</small></div><label class="switch"><input type="checkbox" id="setSemi"><span class="sl"></span></label></div>
       <details class="adv"><summary>Valori bonus (varianti regionali)</summary>
@@ -157,15 +164,21 @@
       </details>
       <div class="ref"><b>Valori carte</b> &mdash; Jolly 30 &middot; Pinella 20 &middot; Asso 15 &middot; dall'8 al K = 10 &middot; dal 3 al 7 = 5.</div>
       <div class="toggle-row"><div class="t-txt">Conta le carte<small>Per tavolo e mano: inserisci le carte per tipo, calcola l'app</small></div><label class="switch"><input type="checkbox" id="setTally"><span class="sl"></span></label></div>
-      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Visualizzazione</h2>
+      <h2 class="sec">Visualizzazione</h2>
       <div class="toggle-row" style="display:none"><div class="t-txt">Vibrazione (Feedback aptico)<small>Leggera vibrazione sui tasti</small></div><label class="switch"><input type="checkbox" id="setHaptic" checked><span class="sl"></span></label></div>
       <div class="toggle-row"><div class="t-txt">Indicatore del mazziere<small>Mostra a chi tocca dare le carte</small></div><label class="switch"><input type="checkbox" id="setDealer" checked><span class="sl"></span></label></div>
       <div class="toggle-row"><div class="t-txt">Squadre da 3 (6 giocatori)<small>Permette fino a 3 giocatori per squadra</small></div><label class="switch"><input type="checkbox" id="setBigTeams"><span class="sl"></span></label></div>
       <div class="toggle-row"><div class="t-txt">Mostra sezione Tornei<small>Attiva la voce Tornei nel dock</small></div><label class="switch"><input type="checkbox" id="setShowTourneys"><span class="sl"></span></label></div>
-      <h2 class="sec" style="color:rgba(28,27,25,.5);margin-top:6px">Dati</h2>
+      <h2 class="sec">Dati</h2>
       <div class="data-btns"><button class="data-btn" id="exportData">Esporta backup</button><button class="data-btn" id="importData">Importa backup</button></div>
       <input type="file" id="importFile" accept="application/json,.json" hidden>
       <div class="ref">Salva o ripristina giocatori, partite, tornei e impostazioni — utile per cambiare dispositivo o non perdere i dati.</div>
+      
+      <h2 class="sec" id="creditsSec" style="margin-top:20px;">Crediti</h2>
+      <div class="ref" style="text-align:center; padding: 18px 16px; background:linear-gradient(145deg, var(--ink), #2a2925); color:rgba(237,234,223,.8); border-radius:var(--r-md); box-shadow:0 4px 12px rgba(0,0,0,0.15); border:1px solid rgba(255,255,255,0.05);">
+        <b style="font-family:'Fraunces',serif; font-size:1.6rem; color:var(--oro-soft); display:block; margin-bottom:8px; line-height:1;">Pinella</b>
+        Ideata e disegnata da <b style="color:#fff; font-size:1.05rem;">Edoardo Conforti</b>
+      </div>
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="saveSettings">Fatto</button></div>
@@ -199,7 +212,7 @@
   <div class="sheet-body">
     <div class="rules">
       <h4>Materiale e giocatori</h4>
-      <p>Due mazzi di carte francesi compresi i jolly (108 carte in tutto). Si gioca in <b>2</b> (uno contro uno) o in <b>4</b> a coppie. Le <b>matte</b> &mdash; i jolly e i 2 (pinelle) &mdash; sostituiscono qualsiasi carta.</p>
+      <p>Due mazzi di carte francesi compresi i jolly (108 carte in tutto). Si gioca in <b>2</b> (uno contro uno) o in <b>4</b> a coppie. L'app supporta anche le varianti a <b>3</b> e <b>6 giocatori</b>. Le <b>matte</b> &mdash; i jolly e i 2 (pinelle) &mdash; sostituiscono qualsiasi carta.</p>
       <h4>Scopo</h4>
       <p>Si gioca a più mani: vince chi raggiunge per primo il <b>punteggio prefissato</b> (di solito 2005), sommando i punti di ogni mano.</p>
       <h4>Preparazione</h4>
@@ -239,6 +252,9 @@
         <li>Jolly 30 · Pinella (2) 20 · Asso 15 · dall'8 al K = 10 · dal 3 al 7 = 5</li>
       </ul>
       <div class="ref" style="padding-top:6px">Le regole hanno varianti regionali. I valori dei bonus sono modificabili in Impostazioni.</div>
+      <h4>Varianti a 3 o 6 giocatori</h4>
+      <p><b>A 6 giocatori:</b> Si gioca a 3 coppie con 3 pozzetti da 11 carte.</p>
+      <p><b>A 3 giocatori:</b> Puoi giocare "Tutti contro tutti" (3 pozzetti da 11 carte) oppure la classica modalità "2 vs 1": si preparano due pozzetti, uno da 18 e uno da 11 carte. Il primo giocatore che esaudisce le sue carte prende il pozzetto da 18 e gioca da solo. Gli altri due si alleano automaticamente, condividendo il pozzetto da 11 e formando una squadra! <i>(Usa il bottone dorato "Alleanza" nell'app per unire le squadre in corsa)</i>.</p>
     </div>
   </div>
 </div>
@@ -251,7 +267,7 @@
   <div class="sheet-body">
     <div class="set-group">
       <div id="playersPickWrap" hidden>
-        <p class="ref" style="padding-top:0">Tocca un giocatore per assegnarlo: <b>1° tocco → Squadra A</b>, 2° → Squadra B, 3° lo togli.</p>
+        <p class="ref" id="playersPickHint" style="padding-top:0">Tocca un giocatore per assegnarlo: <b>1° tocco → Squadra A</b>, 2° → Squadra B, 3° lo togli.</p>
         <div class="pgrid" id="playersPick"></div>
         <div class="ref" id="playersPickPrev" style="padding-top:8px"></div>
       </div>
@@ -270,14 +286,71 @@
     <div class="set-group">
       <div class="set-row"><label>Nome del torneo</label><input class="txtbox" id="tName" maxlength="40"></div>
       <div class="set-row"><label>Si arriva a (per ogni partita)</label><input class="txtbox" id="tTarget" type="number" inputmode="numeric" min="100" step="5"></div>
-      <h2 class="sec" style="color:rgba(28,27,25,.5)">Coppie</h2>
+      <h2 class="sec">Coppie</h2>
       <div id="couplesArea"></div>
       <button class="ghost-add" id="addCouple" style="border-color:rgba(28,27,25,.22);color:var(--ink)">+ Aggiungi coppia</button>
-      <div class="add-person-row" style="margin-top:4px"><input class="txtbox" id="tNewPerson" placeholder="Aggiungi una persona alla rubrica" maxlength="22"><button id="tAddPerson">Aggiungi</button></div>
       <div class="inline-err" id="tErr"></div>
     </div>
   </div>
   <div class="sheet-foot"><button class="btn btn-primary" id="createTourney">Crea torneo</button></div>
+</div>
+
+<div class="scrim" id="scrimImport"></div>
+<div class="sheet" id="importSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3>Importa backup</h3><button class="close-x" id="importClose">&times;</button></div>
+  <div class="sheet-body">
+    <div style="padding:20px 0; text-align:center; opacity:0.8;">Come vuoi procedere con l'importazione?</div>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-primary" id="btnImportMerge">Aggiungi</button><button class="btn btn-primary" id="btnImportReplace">Sostituisci</button></div>
+</div>
+
+<div class="scrim" id="scrimConfirm"></div>
+<div class="sheet" id="confirmSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3 id="confirmTitle">Conferma</h3><button class="close-x" id="confirmClose">&times;</button></div>
+  <div class="sheet-body">
+    <div id="confirmMessage" style="padding:20px 0; text-align:center; opacity:0.8;">Sei sicuro?</div>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-ghost" id="btnConfirmCancel">Annulla</button><button class="btn btn-primary" id="btnConfirmOk">Conferma</button></div>
+</div>
+
+<div class="scrim" id="scrimPrompt"></div>
+<div class="sheet" id="promptSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3 id="promptTitle">Inserisci</h3><button class="close-x" id="promptClose">&times;</button></div>
+  <div class="sheet-body">
+    <div style="padding:10px 16px 20px">
+      <input type="text" class="txtbox" id="promptInput" style="width:100%" maxlength="40">
+    </div>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-ghost" id="btnPromptCancel">Annulla</button><button class="btn btn-primary" id="btnPromptOk">Salva</button></div>
+</div>
+
+<div class="scrim" id="scrimMerge"></div>
+<div class="sheet" id="mergeSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3 id="mergeTitle">Alleanza (2 vs 1)</h3><button class="close-x" id="mergeClose">&times;</button></div>
+  <div class="sheet-body">
+    <div style="padding:10px 0; text-align:center; opacity:0.8; margin-bottom:12px;">Seleziona i due giocatori che si alleano:</div>
+    <div id="mergePlayersList" style="display:flex; flex-direction:column; gap:10px;"></div>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-primary" id="btnMergeConfirm" disabled>Unisci squadra</button></div>
+</div>
+
+<!-- Credits -->
+<div class="scrim" id="scrim10"></div>
+<div class="sheet" id="creditsSheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div class="sheet-head"><h3>Crediti</h3><button class="close-x" id="creditsClose">&times;</button></div>
+  <div class="sheet-body">
+    <div style="padding:16px 0 8px;">
+      <div class="ref" style="text-align:center; padding: 32px 16px; background:linear-gradient(145deg, var(--ink), #2a2925); color:rgba(237,234,223,.8); border-radius:var(--r-md); box-shadow:0 4px 12px rgba(0,0,0,0.15); border:1px solid rgba(255,255,255,0.05);">
+        <b style="font-family:'Fraunces',serif; font-size:2.2rem; color:var(--oro-soft); display:block; margin-bottom:12px; line-height:1;">Pinella</b>
+        Ideata e disegnata da <b style="color:#fff; font-size:1.15rem; display:block; margin-top:4px;">Edoardo Conforti</b>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
@@ -289,6 +362,5 @@
   <span>Pinella si usa in verticale</span>
 </div>
 
-<script src="assets/js/main.js?v=33"></script>
 </body>
 </html>
