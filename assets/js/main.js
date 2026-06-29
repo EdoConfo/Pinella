@@ -653,19 +653,34 @@
     rows.sort(function(a,b){return b.wins-a.wins||b.pct-a.pct||b.games-a.games||b.pf-a.pf;});
     if(rows.length===0){area.innerHTML='<div class="empty"><span class="big">Classifica vuota</span>Nessun giocatore ha ancora giocato una partita.</div>';}
     else{var top=rows.slice(0,5);area.innerHTML='<div style="font-size:.76rem;color:var(--muted);padding:0 2px 9px;line-height:1.5">Prime 5 per <b style="color:var(--txt)">vittorie</b> (V) · G = partite · % = vinte su giocate.</div><table><thead><tr><th>#</th><th class="lcol">Giocatore</th><th>G</th><th>V</th><th>%</th></tr></thead><tbody>'+top.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td class="lcol">'+esc(r.p.name)+'</td><td>'+r.games+'</td><td>'+r.wins+'</td><td>'+r.pct+'%</td></tr>';}).join("")+'</tbody></table>';}
-    var list=$("historyListArea"),games=(state.history||[]).slice().reverse();
-    if(games.length===0){list.innerHTML='<div class="empty"><span class="big">Ancora nessuna partita</span>Le partite casual concluse compariranno qui quando inizi una nuova partita.</div>';return;}
-    list.innerHTML=games.map(function(g){
-      var sa=g.totals[0],sb=g.totals[1],wa=sa>sb,wb=sb>sa,d=new Date(g.ts);
-      var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
-      var m1=(g.teams&&g.teams[0]?g.teams[0].members:[]);
-      var m2=(g.teams&&g.teams[1]?g.teams[1].members:[]);
-      var avA = '<div class="avs-mini">' + m1.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
-      var avB = '<div class="avs-mini">' + m2.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
-      var nmA = m1.length>0 ? m1.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[0].split(' ')[0]);
-      var nmB = m2.length>0 ? m2.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[1].split(' ')[0]);
-      return '<div class="match clk" data-id="'+g.id+'"><div class="pair"><div class="row'+(wa?' w':'')+'"><div class="nm-wrap">'+avA+'<span class="nm">'+nmA+'</span></div><span class="sc">'+fmt(sa)+'</span></div><div class="row'+(wb?' w':'')+'"><div class="nm-wrap">'+avB+'<span class="nm">'+nmB+'</span></div><span class="sc">'+fmt(sb)+'</span></div></div><div class="match-right"><span class="stat done">Conclusa</span><div class="match-date">'+dstr+'</div></div><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div>';
-    }).join("");
+    var list=$("historyListArea"),games=(state.history||[]).slice();
+    if(games.length===0){list.innerHTML='<div class="empty"><span class="big">Ancora nessuna partita</span>Le partite casual compariranno qui quando ne inizi una.</div>';return;}
+    
+    var ongoing = games.filter(function(g){ return Math.max.apply(null, g.totals) < g.target; });
+    var finished = games.filter(function(g){ return Math.max.apply(null, g.totals) >= g.target; });
+    
+    function renderBlock(gamesArr) {
+      return gamesArr.map(function(g){
+        var sa=g.totals[0],sb=g.totals[1],d=new Date(g.ts);
+        var isFinished = Math.max.apply(null, g.totals) >= g.target;
+        var wa=isFinished&&sa>sb,wb=isFinished&&sb>sa;
+        var stat = isFinished ? '<span class="stat done">Conclusa</span>' : '<span class="stat live">In corso</span>';
+        var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+        var m1=(g.teams&&g.teams[0]?g.teams[0].members:[]);
+        var m2=(g.teams&&g.teams[1]?g.teams[1].members:[]);
+        var avA = '<div class="avs-mini">' + m1.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
+        var avB = '<div class="avs-mini">' + m2.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
+        var nmA = m1.length>0 ? m1.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[0].split(' ')[0]);
+        var nmB = m2.length>0 ? m2.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[1].split(' ')[0]);
+        return '<div class="match clk" data-id="'+g.id+'"><div class="pair"><div class="row'+(wa?' w':'')+'"><div class="nm-wrap">'+avA+'<span class="nm">'+nmA+'</span></div><span class="sc">'+fmt(sa)+'</span></div><div class="row'+(wb?' w':'')+'"><div class="nm-wrap">'+avB+'<span class="nm">'+nmB+'</span></div><span class="sc">'+fmt(sb)+'</span></div></div><div class="match-right">'+stat+'<div class="match-date">'+dstr+'</div></div><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div>';
+      }).join("");
+    }
+    
+    var html = "";
+    if(ongoing.length > 0) html += '<h3 class="sec" style="font-size:0.75rem;margin:16px 2px 10px;border:none">In corso</h3>' + renderBlock(ongoing);
+    if(finished.length > 0) html += '<h3 class="sec" style="font-size:0.75rem;margin:16px 2px 10px;border:none">Concluse</h3>' + renderBlock(finished);
+    list.innerHTML = html;
+    
     list.querySelectorAll(".match").forEach(function(el){el.addEventListener("click",function(){openHistoryGame(el.dataset.id);});});
     list.querySelectorAll(".hg-rm").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();deleteHistoryGame(b.dataset.id);});});
   }
