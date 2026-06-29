@@ -675,7 +675,7 @@
           return '<div class="row'+(isWinner?' w':'')+'"><div class="nm-wrap">'+avHtml+'<span class="nm">'+nm+'</span></div><span class="sc">'+fmt(sc)+'</span></div>';
         }).join("");
         
-        return '<div class="match clk" data-id="'+g.id+'"><div class="pair">'+rowsHtml+'</div><div class="match-right">'+stat+'<div class="match-date">'+dstr+'</div></div><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div>';
+        return '<div class="match clk" data-id="'+g.id+'"><div class="pair">'+rowsHtml+'</div><div class="match-right"><div style="display:flex;align-items:center;gap:6px">'+stat+'<button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div><div class="match-date">'+dstr+'</div></div></div>';
       }).join("");
     }
     
