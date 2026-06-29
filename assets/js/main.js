@@ -661,18 +661,21 @@
     
     function renderBlock(gamesArr) {
       return gamesArr.map(function(g){
-        var sa=g.totals[0],sb=g.totals[1],d=new Date(g.ts);
-        var isFinished = Math.max.apply(null, g.totals) >= g.target;
-        var wa=isFinished&&sa>sb,wb=isFinished&&sb>sa;
+        var d=new Date(g.ts);
+        var maxSc = Math.max.apply(null, g.totals);
+        var isFinished = maxSc >= g.target;
         var stat = isFinished ? '<span class="stat done">Conclusa</span>' : '<span class="stat live">In corso</span>';
-        var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
-        var m1=(g.teams&&g.teams[0]?g.teams[0].members:[]);
-        var m2=(g.teams&&g.teams[1]?g.teams[1].members:[]);
-        var avA = '<div class="avs-mini">' + m1.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
-        var avB = '<div class="avs-mini">' + m2.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
-        var nmA = m1.length>0 ? m1.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[0].split(' ')[0]);
-        var nmB = m2.length>0 ? m2.map(function(m){return m.name.split(' ')[0];}).join(" & ") : esc(g.names[1].split(' ')[0]);
-        return '<div class="match clk" data-id="'+g.id+'"><div class="pair"><div class="row'+(wa?' w':'')+'"><div class="nm-wrap">'+avA+'<span class="nm">'+nmA+'</span></div><span class="sc">'+fmt(sa)+'</span></div><div class="row'+(wb?' w':'')+'"><div class="nm-wrap">'+avB+'<span class="nm">'+nmB+'</span></div><span class="sc">'+fmt(sb)+'</span></div></div><div class="match-right">'+stat+'<div class="match-date">'+dstr+'</div></div><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div>';
+        var dstr=d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+" · a "+fmt(g.target);
+        
+        var rowsHtml = g.totals.map(function(sc, i) {
+          var isWinner = isFinished && sc === maxSc;
+          var mList = (g.teams && g.teams[i]) ? g.teams[i].members : [];
+          var avHtml = '<div class="avs-mini">' + mList.map(function(m){return memberAvatar(m,24);}).join("") + '</div>';
+          var nm = mList.length > 0 ? mList.map(function(m){return m.name.split(' ')[0];}).join(" & ") : (g.names[i]?esc(g.names[i].split(' ')[0]):"?");
+          return '<div class="row'+(isWinner?' w':'')+'"><div class="nm-wrap">'+avHtml+'<span class="nm">'+nm+'</span></div><span class="sc">'+fmt(sc)+'</span></div>';
+        }).join("");
+        
+        return '<div class="match clk" data-id="'+g.id+'"><div class="pair">'+rowsHtml+'</div><div class="match-right">'+stat+'<div class="match-date">'+dstr+'</div></div><button class="hg-rm" data-id="'+g.id+'" aria-label="Elimina">&times;</button></div>';
       }).join("");
     }
     
