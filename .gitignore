@@ -3,3 +3,15 @@
 
 # Editor / local tooling (preview config, etc.)
 .claude/
+
+# Dependencies (local tooling only — the app is dependency-free)
+node_modules/
+package.json
+package-lock.json
+
+# Local scratch / test data (not part of the app)
+test*.js
+test*.json
+test*.html
+generate_data.py
+after_import.png
