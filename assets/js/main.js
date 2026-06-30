@@ -269,7 +269,7 @@
     if(keyA===keyB)return;var order=ensureOrder(),ia=order.indexOf(keyA),ib=order.indexOf(keyB);if(ia<0||ib<0)return;
     var N=seats.length,curKey=seats[dealerIdxNow()].key;
     var tmp=order[ia];order[ia]=order[ib];order[ib]=tmp;
-    if(sa.side !== sb.side && N % 2 === 0) {
+    if(sa.side !== sb.side && N % 2 === 0 && N > 2) {
       var iaOp = (ia + N/2) % N, ibOp = (ib + N/2) % N;
       var tmpOp = order[iaOp]; order[iaOp] = order[ibOp]; order[ibOp] = tmpOp;
     }
@@ -510,19 +510,27 @@
     });
     return sum;
   }
-  function cardsTotalNow(){var sum=0;$("cardsBody").querySelectorAll(".chip").forEach(function(ch){sum+=(parseInt(ch.querySelector(".c").textContent,10)||0)*parseInt(ch.dataset.val,10);});return sum;}
+  function cardsTotalNow(){var sum=0;$("cardsBody").querySelectorAll(".chip").forEach(function(ch){sum+=(parseInt(ch.querySelector(".c").value,10)||0)*parseInt(ch.dataset.val,10);});return sum;}
   function updateCardsTotal(){$("cardsTotal").textContent=fmt(cardsTotalNow());}
   function buildCardsBody(){
     var counts=(draft[cardSide]&&draft[cardSide][cardK+"Cards"])||{};
-    var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><span class="c">'+n+'</span><button type="button" data-d="1">+</button></div></div>';}).join("");
+    var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><input type="number" class="c" value="'+n+'" min="0" max="'+CARD_LIMITS[c.k]+'"><button type="button" data-d="1">+</button></div></div>';}).join("");
     $("cardsBody").innerHTML='<div class="cards-list">'+rows+'<div class="sum">Totale <b id="cardsTotal">0</b></div></div>';
     $("cardsBody").querySelectorAll(".chip").forEach(function(chip){
       var cspan=chip.querySelector(".c");
       var key=chip.dataset.k;
+      cspan.addEventListener("input", function() {
+        var v = parseInt(cspan.value, 10) || 0;
+        if(v < 0) v = 0;
+        var maxAllowed = CARD_LIMITS[key] - getOtherCounts(cardSide, cardK, key);
+        if(v > maxAllowed) v = maxAllowed;
+        cspan.value = v;
+        updateCardsTotal();
+      });
       chip.querySelectorAll("button").forEach(function(b){
         b.addEventListener("click",function(){
           var d=parseInt(b.dataset.d,10);
-          var cur=parseInt(cspan.textContent,10);
+          var cur=parseInt(cspan.value,10)||0;
           if(d>0){
             var other=getOtherCounts(cardSide,cardK,key);
             if(cur+other>=CARD_LIMITS[key]){
@@ -532,7 +540,7 @@
           }
           var next=cur+d;
           if(next<0)next=0;
-          cspan.textContent=next;
+          cspan.value=next;
           updateCardsTotal();
         });
       });
@@ -542,7 +550,7 @@
   function openCardsPopup(side,k){cardSide=side;cardK=k;$("cardsTitle").textContent=(k==="mano"?"Carte in mano":"Carte sul tavolo");buildCardsBody();openOv("cardsSheet","scrim8");}
   function applyCards(){
     var counts={},sum=0;
-    $("cardsBody").querySelectorAll(".chip").forEach(function(ch){var n=parseInt(ch.querySelector(".c").textContent,10)||0;counts[ch.dataset.k]=n;sum+=n*parseInt(ch.dataset.val,10);});
+    $("cardsBody").querySelectorAll(".chip").forEach(function(ch){var n=parseInt(ch.querySelector(".c").value,10)||0;counts[ch.dataset.k]=n;sum+=n*parseInt(ch.dataset.val,10);});
     draft[cardSide][cardK]=sum;draft[cardSide][cardK+"Cards"]=counts;
     closeOv("cardsSheet","scrim8");syncSheet();
   }
