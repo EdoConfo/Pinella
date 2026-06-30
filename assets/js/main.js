@@ -31,10 +31,14 @@
   function esc(s){return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
   function blankInput(){return {pulito:0,semi:0,sporco:0,tavolo:0,mano:0,chius:false,pozz:false};}
   function roundScore(inp){var v=state.settings.values;return inp.pulito*v.pulito+inp.semi*v.semi+inp.sporco*v.sporco+inp.tavolo-inp.mano+(inp.chius?v.chius:0)-(inp.pozz?v.pozz:0);}
-  function totals(rounds){
+  function totals(rounds, teamCount){
     var a=0,b=0,c=0,hasC=false;
     (rounds||[]).forEach(function(r){a+=roundScore(r.a);b+=roundScore(r.b);if(r.c!==undefined){c+=roundScore(r.c);hasC=true;}});
-    if(typeof scorer!=="undefined" && scorer && scorer.names && scorer.names.length>2) hasC=true;
+    if(teamCount !== undefined) {
+      hasC = (teamCount > 2);
+    } else if(typeof scorer!=="undefined" && scorer && scorer.names && scorer.names.length>2) {
+      hasC = true;
+    }
     return hasC ? [a,b,c] : [a,b];
   }
   function getPlayer(id){return state.players.find(function(x){return x.id===id;});}
