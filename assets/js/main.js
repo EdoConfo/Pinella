@@ -1018,6 +1018,8 @@
         delete r.c;
       });
       g.totals = totals(g.rounds, 2);
+    } else {
+      g.totals = [0, 0];
     }
     
     closeOv("mergeSheet", "scrimMerge");
