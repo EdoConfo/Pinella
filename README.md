@@ -69,5 +69,19 @@ I file CSS e JS vengono inclusi con la querystring `?v=N` per gestire aggressiva
 
 ---
 
+## 🔮 Roadmap & Sviluppi Futuri
+
+Nonostante l'applicazione sia già completa e stabile per un utilizzo intensivo, il progetto è in continua evoluzione. Tra le funzionalità previste per le prossime grandi iterazioni:
+
+- 🖥️ **Layout Multitab per Tablet/Desktop (Split-View):** Sfruttare lo spazio degli schermi più ampi dividendo l'interfaccia a colonne (es. tabellone a sinistra e Conta Carte sempre visibile a destra, oppure classifiche tornei e tavoli affiancati).
+- ⚔️ **Tornei "Tutti Contro Tutti" (3 Squadre / Free-For-All):** Espansione dell'algoritmo del girone all'italiana per generare sfide atipiche, ma popolarissime nei grandi ritrovi: 3 giocatori singoli (1v1v1) o 6 giocatori divisi in 3 coppie (2v2v2).
+- 📸 **Riconoscimento Carte tramite Fotocamera:** Integrazione sperimentale di Computer Vision (tramite TensorFlow.js o API Web AI) per scattare una foto al ventaglio di carte rimaste e alimentare automaticamente il *Conta Carte* senza digitare nulla.
+- 📊 **Grafici Storici e Visualizzazione Dati:** Implementazione di grafici vettoriali (SVG/Canvas) nei profili per tracciare visivamente l'andamento e la forma del giocatore (line-chart storiche) e la distribuzione degli esiti (pie-chart).
+- 🔗 **Sincronizzazione P2P (Live Scoreboard):** Utilizzo di WebRTC per connettere istantaneamente più telefoni allo stesso tavolo (via QR Code). Un solo arbitro aggiorna i punteggi, ma lo schermo si sincronizza in diretta sui dispositivi di tutti i giocatori in locale, senza appoggiarsi ad alcun server cloud.
+- 🏆 **Esportazione Referto Fotografico:** Funzione *Share* nativa che renderizza la classifica finale del torneo in un'elegante immagine riepilogativa (tramite API Canvas), pronta da inviare ai partecipanti su WhatsApp.
+- ⚙️ **Preset Regole Locali:** Aggiunta di template rapidi per le varianti regionali più famose del gioco (Burraco Internazionale, Reale, ecc.) che ricalibrano automaticamente i limiti e i bonus di chiusura/pozzetti.
+
+---
+
 Realizzata con passione da **Edoardo Conforti** 
 *(Ispirata alle lunghe serate a Burraco tra amici e nata per risolvere elegantemente il problema dei fogli di carta persi)*
