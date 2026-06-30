@@ -645,13 +645,20 @@
   function playerStats(){
     var m={};
     function ensure(id){if(!m[id])m[id]={games:0,wins:0,pf:0,pa:0};return m[id];}
-    function record(idsA,idsB,sa,sb){
-      var wa=sa>sb,wb=sb>sa;
-      idsA.forEach(function(id){if(!id)return;var s=ensure(id);s.games++;s.pf+=sa;s.pa+=sb;if(wa)s.wins++;});
-      idsB.forEach(function(id){if(!id)return;var s=ensure(id);s.games++;s.pf+=sb;s.pa+=sa;if(wb)s.wins++;});
-    }
     (state.history||[]).forEach(function(g){
-      record((g.teams[0].members||[]).map(function(x){return x.id;}),(g.teams[1].members||[]).map(function(x){return x.id;}),g.totals[0],g.totals[1]);
+      var maxSc = Math.max.apply(null, g.totals);
+      if(maxSc < g.target) return;
+      var tms = g.teams||[], tots = g.totals||[];
+      tms.forEach(function(tm, i){
+        var sc = tots[i]||0;
+        var isWin = (sc === maxSc);
+        var pa = 0; tots.forEach(function(other, j){ if(i!==j) pa += other; });
+        (tm.members||[]).forEach(function(mbr){
+          if(!mbr.id) return;
+          var s = ensure(mbr.id);
+          s.games++; s.pf += sc; s.pa += pa; if(isWin) s.wins++;
+        });
+      });
     });
     return m;
   }
@@ -713,6 +720,7 @@
     (state.history||[]).forEach(function(g){
       var t=g.totals||totals(g.rounds||[], (g.teams||[]).length);
       var maxT=Math.max.apply(null,t);
+      if(maxT < g.target) return;
       var myIdx=-1, teamsIds=(g.teams||[]).map(function(tm,i){var ids=(tm.members||[]).map(function(x){return x.id;});if(ids.indexOf(id)>-1)myIdx=i;return ids;});
       if(myIdx===-1)return;
       var myScore=t[myIdx];
