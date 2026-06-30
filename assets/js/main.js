@@ -497,6 +497,11 @@
   // ===== card-tally popup =====
   var cardSide=null,cardK=null;
   var CARD_LIMITS={jolly:4,pin:8,asso:8,fig:48,bas:40};
+  function getCardLimit(k){
+    var b=CARD_LIMITS[k], tot=0;
+    if(scorer&&scorer.members){scorer.members.forEach(function(m){tot+=m.length;});}
+    return tot===6 ? Math.floor(b*1.5) : b;
+  }
   function getOtherCounts(side,k,cardKey){
     var sum=0;
     var cLetters = ["a","b","c"];
@@ -514,7 +519,7 @@
   function updateCardsTotal(){$("cardsTotal").textContent=fmt(cardsTotalNow());}
   function buildCardsBody(){
     var counts=(draft[cardSide]&&draft[cardSide][cardK+"Cards"])||{};
-    var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><input type="number" class="c" value="'+n+'" min="0" max="'+CARD_LIMITS[c.k]+'"><button type="button" data-d="1">+</button></div></div>';}).join("");
+    var rows=CARDS.map(function(c){var n=counts[c.k]||0;return '<div class="chip" data-k="'+c.k+'" data-val="'+c.v+'"><div class="lbl">'+c.lbl+' <small>'+c.v+'</small></div><div class="ctrl"><button type="button" data-d="-1">−</button><input type="number" class="c" value="'+n+'" min="0" max="'+getCardLimit(c.k)+'"><button type="button" data-d="1">+</button></div></div>';}).join("");
     $("cardsBody").innerHTML='<div class="cards-list">'+rows+'<div class="sum">Totale <b id="cardsTotal">0</b></div></div>';
     $("cardsBody").querySelectorAll(".chip").forEach(function(chip){
       var cspan=chip.querySelector(".c");
@@ -522,7 +527,7 @@
       cspan.addEventListener("input", function() {
         var v = parseInt(cspan.value, 10) || 0;
         if(v < 0) v = 0;
-        var maxAllowed = CARD_LIMITS[key] - getOtherCounts(cardSide, cardK, key);
+        var maxAllowed = getCardLimit(key) - getOtherCounts(cardSide, cardK, key);
         if(v > maxAllowed) v = maxAllowed;
         cspan.value = v;
         updateCardsTotal();
@@ -533,8 +538,8 @@
           var cur=parseInt(cspan.value,10)||0;
           if(d>0){
             var other=getOtherCounts(cardSide,cardK,key);
-            if(cur+other>=CARD_LIMITS[key]){
-              toast("Limite raggiunto per questa carta ("+CARD_LIMITS[key]+" max)");
+            if(cur+other>=getCardLimit(key)){
+              toast("Limite raggiunto per questa carta ("+getCardLimit(key)+" max)");
               return;
             }
           }
