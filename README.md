@@ -1,87 +1,105 @@
-# 🃏 Pinella · Segnapunti Burraco
+# 🃏 Pinella · Burraco Scorekeeper
 
-Un'applicazione web progressiva (PWA) premium, nativa e offline-first per segnare i punti a Burraco. Sviluppata interamente in Vanilla HTML, CSS e JavaScript senza l'uso di alcun framework, progettata per offrire un'esperienza utente fluida, rapida e visivamente impeccabile.
+A native-feeling, offline-first Progressive Web App (PWA) for keeping score in Burraco, the Italian rummy-style card game. Built entirely with vanilla HTML, CSS and JavaScript — no frameworks, no dependencies — and designed to be fast, smooth and comfortable to use one-handed at the card table.
 
-[🌍 Prova l'app live](https://edoconfo.github.io/Pinella/)
+The app interface is in Italian.
+
+[🌍 Try the live app](https://edoconfo.github.io/Pinella/)
 
 ---
 
-## ✨ Funzionalità Principali
+## ✨ Features
 
-- ⚔️ **Partite Singole & Modalità Alleanza**
-  Gestione completa di partite a coppie standard e dell'innovativa modalità a 3 giocatori ("Alleanza"), in cui un giocatore singolo affronta un'alleanza di due giocatori uniti in corsa, gestita dinamicamente dal sistema.
+- ⚔️ **Casual Matches & "Alleanza" (Alliance) Mode**
+  Score games with up to three teams (A, B, C): one-on-one, pairs, three singles (1v1v1) or three pairs (2v2v2). An optional setting allows teams of three players. In a three-player game, the "Alleanza" button merges two players into a single team mid-game for the classic "2 vs 1" variant.
 
-- 🏆 **Motore di Tornei Round-Robin**
-  Creazione e gestione di tornei a girone all'italiana. Il motore calcola automaticamente tutti gli abbinamenti, le rotazioni e gli eventuali "turni di riposo" in base alle coppie iscritte. Classifica dinamica basata su vittorie, differenza punti e punti totali.
+- 🏆 **Round-Robin Tournaments**
+  Create pairs tournaments where every couple plays every other couple. The app generates the schedule turn by turn, including bye turns when the number of couples is odd, and keeps live standings ranked by wins, point difference and points scored. The Tournaments section is hidden by default and can be enabled in Settings.
 
-- 📊 **Profili e Statistiche Avanzate**
-  Una rubrica completa per tutti i giocatori. Ogni profilo traccia automaticamente decine di metriche: tasso di vittoria (%), punti fatti/subiti, "Miglior Compagno", "Bestia Nera" (avversario più ostico) e cronologia interattiva delle ultime partite. 
+- 📊 **Player Profiles & Stats**
+  A roster of players with custom avatars (photo or symbol and color). Each profile shows games played, wins, win rate, best partner, most-beaten opponent and the last five results. The History view lists past games and a top-5 leaderboard.
 
-- 🧮 **Assistente Conta Carte**
-  Invece di calcolare i conteggi a mente, l'app offre un'interfaccia dedicata per inserire semplicemente le singole carte rimaste in mano e calcolare in automatico le deduzioni in un istante.
+- 🧮 **Card Tally Helper**
+  An optional helper (Settings → "Conta le carte") to enter melded and in-hand cards by type, so the app calculates each hand's card points for you.
 
-- 💾 **Offline-First & Privacy Assoluta**
-  Tutti i dati, i tornei, i profili e la cronologia risiedono esclusivamente nel `localStorage` del dispositivo. L'app funziona al 100% senza connessione internet grazie al Service Worker integrato.
+- 🎴 **Table Tools**
+  Dealer indicator with a seating popup, a built-in "how to play" rules sheet, configurable target score and editable bonus values for regional variants (clean / semi-clean / dirty burraco, closing, untaken pot).
 
-- 📦 **Importazione ed Esportazione Dati**
-  Possibilità di eseguire un backup completo in formato JSON, ripristinarlo all'occorrenza o trasferire tutti i progressi e le statistiche su qualsiasi altro dispositivo senza passare da alcun server.
+- 💾 **Offline-First & Private**
+  All players, games, tournaments and settings are stored only in the device's `localStorage`. A Service Worker caches the app so it works fully offline (web fonts are loaded from Google Fonts when online, with system font fallbacks offline).
+
+- 📦 **Backup & Restore**
+  Export a full JSON backup (shared via the native share sheet when supported, otherwise downloaded) and import it on any device. No account or backend involved.
 
 ---
 
 ## 🎨 UI / UX Design
 
-L'interfaccia grafica è il vero fiore all'occhiello del progetto:
-- **Design System Custom:** Costruito da zero con variabili CSS avanzate per garantire una consistenza assoluta (Palette colori sartoriale: verde *Feltro*, giallo *Oro*, bianco *Carta*).
-- **Animazioni Native:** Le finestre (sheets a scorrimento dal basso, modali, popup di conferma e toast notification) emulano fedelmente i comportamenti fluidi dei componenti nativi di iOS/Android.
-- **Componenti su Misura:** Nessuna libreria UI o CSS pre-assemblato. Avatar generativi colorati proceduralmente in base al nome, tabelloni adattivi (scoreboard), interruttori e layout studiati millimetricamente per un utilizzo verticale e a una singola mano su mobile.
+- **Custom design system:** built from scratch with CSS custom properties and a card-table palette — felt green, gold and paper white.
+- **Native-like interactions:** bottom sheets, modals, confirmation dialogs and toast notifications (with undo) that mimic iOS/Android components, plus a confetti celebration when a game is won.
+- **Hand-made components:** no UI or CSS libraries. Avatars, adaptive scoreboards, toggles and layouts designed for portrait, one-handed use on phones.
 
 ---
 
-## 🛠 Tech Stack & Architettura
+## 🛠 Tech Stack & Architecture
 
-Il progetto è una vetrina delle immense potenzialità del Web moderno senza astrazioni intermedie:
+- **Markup & styling:** semantic HTML5 and vanilla CSS3 (custom properties, Flexbox, Grid, media queries, `calc()`).
+- **Logic:** vanilla JavaScript (ES6+) in a single state-driven module (`assets/js/main.js`). No build step, no dependencies.
+- **PWA:** `manifest.webmanifest` for "Add to Home Screen" installation with regular and maskable icons, and a Service Worker (`sw.js`) using network-first for HTML navigations and cache-first for versioned same-origin assets.
 
-- **Markup & Stile:** HTML5 semantico e CSS3 Vanilla (Custom Properties, Flexbox, Grid, Media Queries, calc()).
-- **Logica di Gioco:** Vanilla JavaScript (ES6+). Niente React, niente Vue. Nessuna dipendenza. Un'unica applicazione state-driven velocissima.
-- **PWA (Progressive Web App):** Manifest JSON per supportare l'installazione nativa "Aggiungi a schermata Home", icone cross-platform, maskable icons e Service Worker (`sw.js`) per caching e navigazione offline assoluta (strategie network-first / cache-first modulate per gli asset e l'index).
+```
+index.html             App shell and all views/sheets
+assets/js/main.js      Application logic and state
+assets/styles.css      Styles
+assets/img/            App icons
+manifest.webmanifest   PWA manifest
+sw.js                  Service Worker
+```
 
 ---
 
-## 🚀 Sviluppo & Setup Locale
+## 🚀 Local Development
 
-Essendo un'app puramente statica, non ci sono processi di compilazione complessi o lunghi tempi di attesa.
-Per farla girare localmente basta aprire la directory in un qualsiasi server statico (fondamentale solo per attivare il Service Worker, che non lavora su protocollo locale `file://`):
+The app is fully static, so there is nothing to build. Serve the folder with any static server (required for the Service Worker, which does not run on `file://`):
 
 ```bash
-# Esempio usando Node
+# Using Node
 npx serve .
 
-# Esempio usando Python
+# Using Python
 python3 -m http.server 8000
 ```
 
-### ⚠️ Versioning Cache
-I file CSS e JS vengono inclusi con la querystring `?v=N` per gestire aggressivamente la cache del Service Worker.
-**Ogni volta che si modifica il codice JavaScript o CSS**, è cruciale aggiornare il numero di versione **in due punti contemporaneamente** per propagare subito gli aggiornamenti a tutti i telefoni installati:
+The site is deployed with GitHub Pages from the root of the `main` branch.
 
-1. `index.html` — Aggiornare `assets/styles.css?v=N` e `assets/js/main.js?v=N`
-2. `sw.js` — Aggiornare `var VERSION = "N"` e le corrispondenti versioni nell'array `ASSETS`
+### ⚠️ Cache Versioning
+CSS and JS files are referenced with a `?v=N` query string so the Service Worker picks up changes reliably.
+**Whenever you change JavaScript or CSS**, bump the version **in both places** so installed copies update right away:
 
----
-
-## 🔮 Roadmap & Sviluppi Futuri
-
-Nonostante l'applicazione sia già completa e stabile per un utilizzo intensivo, il progetto è in continua evoluzione. Tra le funzionalità previste per le prossime grandi iterazioni:
-
-- 🖥️ **Layout Multitab per Tablet/Desktop (Split-View):** Sfruttare lo spazio degli schermi più ampi dividendo l'interfaccia a colonne (es. tabellone a sinistra e Conta Carte sempre visibile a destra, oppure classifiche tornei e tavoli affiancati).
-- ⚔️ **Tornei "Tutti Contro Tutti" (3 Squadre / Free-For-All):** Espansione dell'algoritmo del girone all'italiana per generare sfide atipiche, ma popolarissime nei grandi ritrovi: 3 giocatori singoli (1v1v1) o 6 giocatori divisi in 3 coppie (2v2v2).
-- 📸 **Riconoscimento Carte tramite Fotocamera:** Integrazione sperimentale di Computer Vision (tramite TensorFlow.js o API Web AI) per scattare una foto al ventaglio di carte rimaste e alimentare automaticamente il *Conta Carte* senza digitare nulla.
-- 📊 **Grafici Storici e Visualizzazione Dati:** Implementazione di grafici vettoriali (SVG/Canvas) nei profili per tracciare visivamente l'andamento e la forma del giocatore (line-chart storiche) e la distribuzione degli esiti (pie-chart).
-- 🔗 **Sincronizzazione P2P (Live Scoreboard):** Utilizzo di WebRTC per connettere istantaneamente più telefoni allo stesso tavolo (via QR Code). Un solo arbitro aggiorna i punteggi, ma lo schermo si sincronizza in diretta sui dispositivi di tutti i giocatori in locale, senza appoggiarsi ad alcun server cloud.
-- 🏆 **Esportazione Referto Fotografico:** Funzione *Share* nativa che renderizza la classifica finale del torneo in un'elegante immagine riepilogativa (tramite API Canvas), pronta da inviare ai partecipanti su WhatsApp.
-- ⚙️ **Preset Regole Locali:** Aggiunta di template rapidi per le varianti regionali più famose del gioco (Burraco Internazionale, Reale, ecc.) che ricalibrano automaticamente i limiti e i bonus di chiusura/pozzetti.
+1. `index.html` — update `assets/styles.css?v=N` and `assets/js/main.js?v=N`
+2. `sw.js` — update `var VERSION = "N"` and the matching versions in the `ASSETS` array
 
 ---
 
-Realizzata con passione da **Edoardo Conforti** 
-*(Ispirata alle lunghe serate a Burraco tra amici e nata per risolvere elegantemente il problema dei fogli di carta persi)*
+## 🔮 Roadmap
+
+The app is complete and stable for everyday use. Ideas for future iterations:
+
+- 🖥️ **Split-view layout for tablet/desktop:** use wider screens with multiple columns (e.g. scoreboard on the left and card tally always visible on the right, or tournament standings next to the tables).
+- ⚔️ **Three-team tournaments:** extend the round-robin engine beyond pairs to 1v1v1 and 2v2v2 formats (already supported in casual matches).
+- 📸 **Camera card recognition:** experimental computer vision (e.g. TensorFlow.js) to photograph the remaining cards and fill in the card tally automatically.
+- 📊 **Historical charts:** SVG/Canvas charts in player profiles to show form over time and result distribution.
+- 🔗 **Peer-to-peer live scoreboard:** WebRTC connection (via QR code) so one scorekeeper updates the score and every player's phone at the table syncs live, with no cloud server.
+- 🏆 **Shareable results image:** render the final tournament standings as an image (Canvas API) ready to share via the native share sheet.
+- ⚙️ **Rule presets:** one-tap presets for popular variants (International Burraco, etc.) that set target score and bonus values automatically, instead of editing them by hand.
+
+---
+
+Made with passion by **Edoardo Conforti**
+*(Inspired by long Burraco evenings with friends, and built to replace easily lost paper score sheets.)*
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE). © 2026 EdoConfo
